@@ -15,14 +15,11 @@ def main():
                         help=('path to a json file containing the paths to '
                               'input and output files and the algorithm '
                               'parameters'))
-    parser.add_argument('--start_from', dest='start_from', type=int,
-                        default=0, help="Integer that indicates the step number from which to "
-                                        "restart the s2p process.")
     args = parser.parse_args()
 
     user_cfg = s2p.read_config_file(args.config)
 
-    s2p.main(user_cfg, start_from=args.start_from)
+    s2p.main(user_cfg)
 
     # Backup input file for sanity check
     if not args.config.startswith(os.path.abspath(s2p.cfg['out_dir']+os.sep)):
