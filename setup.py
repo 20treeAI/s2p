@@ -60,11 +60,7 @@ extras_require = {
 }
 
 setup(name="s2p",
-<<<<<<< HEAD
-      version="1.0b26.dev0",
-=======
-      version="1.2",
->>>>>>> 4e2400b (Use RPCM v1.4.8 (with pleiades neo) and bump to v1.2)
+      version="1.3",
       description="Satellite Stereo Pipeline.",
       long_description=readme(),
       long_description_content_type='text/markdown',
