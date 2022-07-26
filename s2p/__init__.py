@@ -550,7 +550,7 @@ def main(user_cfg, start_from=0):
     nb_workers = multiprocessing.cpu_count()  # nb of available cores
     if cfg['max_processes'] is not None:
         nb_workers = cfg['max_processes']
-    print(f"Using {nb_workers} to run s2p")
+    print(f"Using {nb_workers} workers to run s2p")
 
     tw, th = initialization.adjust_tile_size()
     tiles_txt = os.path.join(cfg['out_dir'], 'tiles.txt')
