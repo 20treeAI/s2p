@@ -550,6 +550,7 @@ def main(user_cfg, start_from=0):
     nb_workers = multiprocessing.cpu_count()  # nb of available cores
     if cfg['max_processes'] is not None:
         nb_workers = cfg['max_processes']
+    print(f"Using {nb_workers} to run s2p")
 
     tw, th = initialization.adjust_tile_size()
     tiles_txt = os.path.join(cfg['out_dir'], 'tiles.txt')
@@ -592,12 +593,14 @@ def main(user_cfg, start_from=0):
 
     # matching step:
     if start_from <= 4:
-        print('4) running stereo matching...')
         if cfg['max_processes_stereo_matching'] is not None:
             nb_workers_stereo = cfg['max_processes_stereo_matching']
         else:
             # Set the number of stereo workers to 2/3 of the number of cores by default
             nb_workers_stereo = min(1, int(2 * (nb_workers / 3)))
+
+        print(f'4) running stereo matching using {nb_workers_stereo} workers...')
+
         try:
             parallel.launch_calls(stereo_matching, tiles_pairs, nb_workers_stereo,
                           timeout=timeout)
