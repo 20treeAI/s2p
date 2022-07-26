@@ -597,7 +597,7 @@ def main(user_cfg, start_from=0):
             nb_workers_stereo = cfg['max_processes_stereo_matching']
         else:
             # Set the number of stereo workers to 2/3 of the number of cores by default
-            nb_workers_stereo = min(1, int(2 * (nb_workers / 3)))
+            nb_workers_stereo = max(1, int(2.0 * (nb_workers / 3.0)))
 
         print(f'4) running stereo matching using {nb_workers_stereo} workers...')
 
