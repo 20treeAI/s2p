@@ -352,7 +352,7 @@ def rectify_pair(im1, im2, rpc1, rpc2, x, y, w, h, out1, out2, A=None, sift_matc
             H2 = register_horizontally_translation(sift_matches, H1, H2)
 
     # compute disparity range
-    if cfg['debug']:
+    if cfg['debug'] and len(sift_matches) > 0:
         out_dir = os.path.dirname(out1)
         np.savetxt(os.path.join(out_dir, 'sift_matches_disp.txt'),
                    sift_matches, fmt='%9.3f')
