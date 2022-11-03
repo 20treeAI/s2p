@@ -177,3 +177,11 @@ cfg['out_crs'] = None
 # If the out_crs is not set this parameter determines if the output CRS uses the EGM96 geoid vertical datum (if True)
 # or the WGS84 ellipsoid vertical datum (if False). If out_crs is set, this parameter is ignored.
 cfg['out_geoid'] = False
+
+# LoFTR parameters
+cfg["loftr_threshold"] = 0.5
+
+# Matching parameters
+cfg["matching_method"] = "sift"
+cfg["max_value"] = 3000
+cfg["min_value"] = 200
