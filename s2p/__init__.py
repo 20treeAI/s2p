@@ -111,7 +111,8 @@ def pointing_correction(tile, i):
     method = 'relative' if cfg['relative_sift_match_thresh'] is True else 'absolute'
     A, m = pointing_accuracy.compute_correction(
         img1, img2, rpc1, rpc2, x, y, w, h, method,
-        cfg['sift_match_thresh'], cfg['max_pointing_error']
+        cfg['sift_match_thresh'], cfg['max_pointing_error'], cfg['matching_method'],
+        cfg['min_value'], cfg['max_value'], cfg['confidence_threshold']
     )
 
     if A is not None:  # A is the correction matrix
