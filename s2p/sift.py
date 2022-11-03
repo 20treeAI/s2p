@@ -242,7 +242,8 @@ def keypoints_match_from_nparray(k1, k2, method, sift_threshold,
 
 
 def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
-                       method, sift_thresh, epipolar_threshold, keypoints_method=“loftr”):
+                       method, sift_thresh, epipolar_threshold, matching_method="sift",
+                       min_value=200, max_value=3000, confidence_threshold=0.5):
     """
     Compute a list of SIFT matches between two images on a given roi.
     The corresponding roi in the second image is determined using the rpc
@@ -267,7 +268,8 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
     F = estimation.affine_fundamental_matrix(rpc_matches)
 
     if keypoints_method == "loftr":
-        p1, p2 = get_keypoints_loftr(im1, im2, min_val, max_val, x, x2, y, y2, w, w2, h, h2)
+        p1, p2 = get_keypoints_loftr(im1, im2, min_val, max_val, confidence_threshold, 
+                                     x, x2, y, y2, w, w2, h, h2)
         matches = np.hstack((p1, p2))
         Fm, inliers = cv2.findFundamentalMat(p1, p2, cv2.USAC_MAGSAC, epipolar_threshold, 0.999, 100000)
         inliers = inliers > 0
