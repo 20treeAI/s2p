@@ -15,6 +15,8 @@ import ransac
 from s2p import rpc_utils
 from s2p import estimation
 
+from matching.matcher import get_keypoints_superglue, get_keypoints_loftr
+
 # Locate sift4ctypes library and raise an ImportError if it can not be
 # found This call will raise an exception if library can not be found,
 # at import time
@@ -240,13 +242,11 @@ def keypoints_match_from_nparray(k1, k2, method, sift_threshold,
 
 
 def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
-                       method, sift_thresh, epipolar_threshold):
+                       method, sift_thresh, epipolar_threshold, keypoints_method=“loftr”):
     """
     Compute a list of SIFT matches between two images on a given roi.
-
     The corresponding roi in the second image is determined using the rpc
     functions.
-
     Args:
         im1, im2: paths to two large tif images
         rpc1, rpc2: two instances of the rpcm.RPCModel class
@@ -255,7 +255,6 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
             of the rectangle.
         method, sift_thresh, epipolar_threshold: see docstring of
             s2p.sift.keypoints_match()
-
     Returns:
         matches: 2D numpy array containing a list of matches. Each line
             contains one pair of points, ordered as x1 y1 x2 y2.
@@ -267,18 +266,31 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
     rpc_matches = rpc_utils.matches_from_rpc(rpc1, rpc2, x, y, w, h, 5)
     F = estimation.affine_fundamental_matrix(rpc_matches)
 
-    # if less than 10 matches, lower thresh_dog. An alternative would be ASIFT
-    thresh_dog = 0.0133
-    for _ in range(2):
-        p1 = image_keypoints(im1, x, y, w, h, thresh_dog=thresh_dog)
-        p2 = image_keypoints(im2, x2, y2, w2, h2, thresh_dog=thresh_dog)
-        matches = keypoints_match(p1, p2, method, sift_thresh, F,
-                                  epipolar_threshold=epipolar_threshold,
-                                  model='fundamental')
-        if matches is not None and matches.ndim == 2 and matches.shape[0] > 10:
-            break
-        thresh_dog /= 2.0
-    else:
-        print("WARNING: sift.matches_on_rpc_roi: found no matches.")
-        return None
+    if keypoints_method == "loftr":
+        p1, p2 = get_keypoints_loftr(im1, im2, min_val, max_val, x, x2, y, y2, w, w2, h, h2)
+        matches = np.hstack((p1, p2))
+        Fm, inliers = cv2.findFundamentalMat(p1, p2, cv2.USAC_MAGSAC, epipolar_threshold, 0.999, 100000)
+        inliers = inliers > 0
+        matches = matches[np.squeeze(inliers), :]
+
+    elif keypoints_method == "superglue":
+        p1, p2 = get_keypoints_superglue(im1, im2, min_val, max_val, x, x2, y, y2, w, w2, h, h2)
+        matches = np.hstack((p1, p2))
+
+    elif keypoints_method == "sift":
+        # if less than 10 matches, lower thresh_dog. An alternative would be ASIFT
+        thresh_dog = 0.0133
+        for _ in range(2):
+            p1 = image_keypoints(im1, x, y, w, h, thresh_dog=thresh_dog)
+            p2 = image_keypoints(im2, x2, y2, w2, h2, thresh_dog=thresh_dog)
+            matches = keypoints_match(p1, p2, method, sift_thresh, F,
+                                    epipolar_threshold=epipolar_threshold,
+                                    model='fundamental')
+            if matches is not None and matches.ndim == 2 and matches.shape[0] > 10:
+                break
+            thresh_dog /= 2.0
+        else:
+            print("WARNING: sift.matches_on_rpc_roi: found no matches.")
+            return None
+
     return matches
