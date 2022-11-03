@@ -54,7 +54,7 @@ requirements = ['numpy',
                 'rpcm @ https://github.com/20treeAI/rpcm/archive/refs/tags/v1.4.8.tar.gz',
                 'srtm4 @ https://github.com/20treeAI/srtm4/archive/refs/tags/1.2.4.tar.gz',
                 'matching @ git+ssh://git@github.com/20treeAI/image-matching.git@updating-docker-and-workflows',
-                'srtm4 @ https://github.com/20treeAI/srtm4/archive/refs/tags/1.2.3.tar.gz',
+                'srtm4 @ https://github.com/20treeAI/srtm4/archive/refs/tags/1.2.4.tar.gz',
                 'requests']
 
 extras_require = {
