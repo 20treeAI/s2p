@@ -15,8 +15,11 @@ import ransac
 from s2p import rpc_utils
 from s2p import estimation
 
-from matching.matcher import get_keypoints_superglue, get_keypoints_loftr
-
+try:
+    from matching.matcher import get_keypoints_superglue, get_keypoints_loftr
+except ImportError:
+    print("Matching library could not be imported.")
+    
 # Locate sift4ctypes library and raise an ImportError if it can not be
 # found This call will raise an exception if library can not be found,
 # at import time
