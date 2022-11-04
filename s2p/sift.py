@@ -270,7 +270,7 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
     rpc_matches = rpc_utils.matches_from_rpc(rpc1, rpc2, x, y, w, h, 5)
     F = estimation.affine_fundamental_matrix(rpc_matches)
 
-    if keypoints_method == "loftr":
+    if matching_method == "loftr":
         p1, p2 = get_keypoints_loftr(im1, im2, min_val, max_val, confidence_threshold, 
                                      x, x2, y, y2, w, w2, h, h2)
         matches = np.hstack((p1, p2))
@@ -278,11 +278,11 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         inliers = inliers > 0
         matches = matches[np.squeeze(inliers), :]
 
-    elif keypoints_method == "superglue":
+    elif matching_method == "superglue":
         p1, p2 = get_keypoints_superglue(im1, im2, min_val, max_val, x, x2, y, y2, w, w2, h, h2)
         matches = np.hstack((p1, p2))
 
-    elif keypoints_method == "sift":
+    elif matching_method == "sift":
         # if less than 10 matches, lower thresh_dog. An alternative would be ASIFT
         thresh_dog = 0.0133
         for _ in range(2):
