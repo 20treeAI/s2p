@@ -16,10 +16,15 @@ from s2p import rpc_utils
 from s2p import estimation
 
 try:
-    from matching.matcher import get_keypoints_superglue, get_keypoints_loftr
+    from matching.matcher import get_keypoints_loftr
 except ImportError:
-    print("Matching library could not be imported.")
-    
+    print("LoFTR matching library could not be imported.")
+
+try:
+    from matching.matcher import get_keypoints_superglue
+except ImportError:
+    print("SuperGlue matching library could not be imported.")
+
 # Locate sift4ctypes library and raise an ImportError if it can not be
 # found This call will raise an exception if library can not be found,
 # at import time
