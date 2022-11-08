@@ -17,13 +17,16 @@ from s2p import estimation
 
 try:
     from matching.matcher import get_keypoints_loftr
-except ImportError:
+except ImportError as e:
     print("LoFTR matching library could not be imported.")
+    print(e)
 
 try:
     from matching.matcher import get_keypoints_superglue
-except ImportError:
+except ImportError as e:
     print("SuperGlue matching library could not be imported.")
+    print(e)
+
 
 # Locate sift4ctypes library and raise an ImportError if it can not be
 # found This call will raise an exception if library can not be found,
