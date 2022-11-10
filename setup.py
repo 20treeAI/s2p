@@ -53,15 +53,15 @@ requirements = ['numpy',
                 'ransac',
                 'rpcm @ https://github.com/20treeAI/rpcm/archive/refs/tags/v1.4.8.tar.gz',
                 'srtm4 @ https://github.com/20treeAI/srtm4/archive/refs/tags/1.2.4.tar.gz',
-                'requests',
                 'opencv-python']
+                'requests']
 
 extras_require = {
     "test": ["pytest", "pytest-cov", "psutil"],
 }
 
 setup(name="s2p",
-      version="1.3.5",
+      version="1.3.6",
       description="Satellite Stereo Pipeline.",
       long_description=readme(),
       long_description_content_type='text/markdown',
