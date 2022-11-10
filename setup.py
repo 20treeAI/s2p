@@ -55,7 +55,8 @@ requirements = ['numpy',
                 'srtm4 @ https://github.com/20treeAI/srtm4/archive/refs/tags/1.2.4.tar.gz',
                 'matching @ git+ssh://git@github.com/20treeAI/image-matching.git@updating-docker-and-workflows',
                 'srtm4 @ https://github.com/20treeAI/srtm4/archive/refs/tags/1.2.4.tar.gz',
-                'requests']
+                'requests',
+                'opencv-python']
 
 extras_require = {
     "test": ["pytest", "pytest-cov", "psutil"],
