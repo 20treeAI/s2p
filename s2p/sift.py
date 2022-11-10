@@ -10,6 +10,7 @@ import warnings
 import numpy as np
 import rasterio as rio
 from numpy.ctypeslib import ndpointer
+import cv2
 import ransac
 
 from s2p import rpc_utils
