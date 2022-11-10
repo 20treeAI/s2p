@@ -283,7 +283,6 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         p1, p2 = get_keypoints_loftr(im1, im2, min_value, max_value, confidence_threshold, 
                                      x, x2, y, y2, w, w2, h, h2, rpc_match=True)
         matches = np.hstack((p1, p2))
-        matches = matches[np.squeeze(inliers), :]
 
     elif matching_method == "superglue":
         p1, p2 = get_keypoints_superglue(im1, im2, min_value, max_value, x, x2, y, y2, w, w2, h, h2, rpc_match=True)
