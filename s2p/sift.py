@@ -287,7 +287,10 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         p2[:, 0] += x2
         p2[:, 1] += y2
         matches = np.hstack((p1, p2))
-
+        inliers = ransac.find_fundamental_matrix(matches, ntrials=1000,
+                                                 max_err=0.3)[0]
+        matches = matches[inliers]
+        
     elif matching_method == "superglue":
         p1, p2 = get_keypoints_superglue(im1, im2, min_value, max_value, x, x2, y, y2, w, w2, h, h2, rpc_match=True)
         p1[:, 0] += x
