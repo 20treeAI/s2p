@@ -338,7 +338,7 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         for _ in range(2):
             p1_sift = image_keypoints(im1, x, y, w, h, thresh_dog=thresh_dog)
             p2_sift = image_keypoints(im2, x2, y2, w2, h2, thresh_dog=thresh_dog)
-            matches_sift = keypoints_match(p1, p2, method, sift_thresh, F,
+            matches_sift = keypoints_match(p1_sift, p2_sift, method, sift_thresh, F,
                                     epipolar_threshold=epipolar_threshold,
                                     model='fundamental')
             if matches_sift is not None and matches_sift.ndim == 2 and matches_sift.shape[0] > 10:
@@ -349,5 +349,5 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
             return None
 
         matches = np.vstack((matches, matches_sg, matches_sift))
-        
+
     return matches
