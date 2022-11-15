@@ -182,7 +182,7 @@ cfg['out_geoid'] = False
 cfg["confidence_threshold"] = 0.5
 
 # Matching parameters
-# Matching method to use, choose from ["sift", "loftr", "superglue"]
+# Matching method to use, choose from ["sift", "loftr", "superglue", "all"]
 cfg["matching_method"] = "sift"
 # The min and max valeus to scale the image between 0 and 1 with, only used for non-SIFT methods.
 cfg["max_value"] = 3000

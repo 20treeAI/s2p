@@ -315,4 +315,39 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
             print("WARNING: sift.matches_on_rpc_roi: found no matches.")
             return None
 
+    elif matching_method == "all":
+        p1, p2 = get_keypoints_loftr(im1, im2, min_value, max_value, confidence_threshold, 
+                                     x, x2, y, y2, w, w2, h, h2, rpc_match=True)
+        p1[:, 0] += x
+        p1[:, 1] += y
+        p2[:, 0] += x2
+        p2[:, 1] += y2
+        matches = np.hstack((p1, p2))
+        inliers = ransac.find_fundamental_matrix(matches, ntrials=1000,
+                                                 max_err=0.3)[0]
+        matches = matches[inliers]
+
+        p1_sg, p2_sg = get_keypoints_superglue(im1, im2, min_value, max_value, x, x2, y, y2, w, w2, h, h2, rpc_match=True)
+        p1_sg[:, 0] += x
+        p1_sg[:, 1] += y
+        p1_sg[:, 0] += x2
+        p1_sg[:, 1] += y2
+        matches_sg = np.hstack((p1_sg, p2_sg))
+
+        thresh_dog = 0.0133
+        for _ in range(2):
+            p1_sift = image_keypoints(im1, x, y, w, h, thresh_dog=thresh_dog)
+            p2_sift = image_keypoints(im2, x2, y2, w2, h2, thresh_dog=thresh_dog)
+            matches_sift = keypoints_match(p1, p2, method, sift_thresh, F,
+                                    epipolar_threshold=epipolar_threshold,
+                                    model='fundamental')
+            if matches_sift is not None and matches_sift.ndim == 2 and matches_sift.shape[0] > 10:
+                break
+            thresh_dog /= 2.0
+        else:
+            print("WARNING: sift.matches_on_rpc_roi: found no matches.")
+            return None
+
+        matches = np.vstack((matches, matches_sg, matches_sift))
+        
     return matches
