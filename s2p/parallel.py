@@ -103,7 +103,7 @@ def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
         time.sleep(1)
         if (psutil.virtual_memory().available * 100 / psutil.virtual_memory().total) < 5.0:
             pool.terminate()
-            raise ValueError('RAM usage is too high, killing the process')
+            raise ValueError(f'RAM usage is too high using {nb_workers} workers, killing the process')
             
 
     for r in results:
