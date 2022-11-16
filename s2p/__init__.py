@@ -644,7 +644,7 @@ def main(user_cfg, start_from=0):
         if cfg['max_processes_stereo_matching'] is not None:
             nb_workers_stereo = cfg['max_processes_stereo_matching']
         else:
-            nb_workers_stereo = nb_workers
+            nb_workers_stereo = max(1, int(nb_workers / 2.0))
         try:
 
             print(f'4) running stereo matching using {nb_workers_stereo} workers...')
@@ -652,7 +652,7 @@ def main(user_cfg, start_from=0):
                           timeout=timeout)
         except ValueError as e:
             nb_workers_stereo /= 2.0
-            nb_workers_stereo = min(1, int(nb_workers_stereo))
+            nb_workers_stereo = max(1, int(nb_workers_stereo))
             print(f"Retrying stereo matching with {nb_workers_stereo} workers...")
             parallel.launch_calls(stereo_matching, tiles_pairs, nb_workers_stereo,
                           timeout=timeout)
