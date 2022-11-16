@@ -2,6 +2,8 @@
 # Copyright (C) 2017, Carlo de Franchis <carlo.de-franchis@polytechnique.org>
 
 import os
+import time
+import psutil
 import sys
 import traceback
 import multiprocessing
@@ -96,6 +98,13 @@ def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
                                             callback=show_progress))
         else:
             results.append(pool.apply_async(fun, args=args, callback=show_progress))
+
+    while any([not r.ready() for r in results]):
+        time.sleep(1)
+        if (psutil.virtual_memory().available * 100 / psutil.virtual_memory().total) < 5.0:
+            pool.terminate()
+            raise ValueError('RAM usage is too high, killing the process')
+            
 
     for r in results:
         try:
