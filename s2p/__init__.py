@@ -644,16 +644,18 @@ def main(user_cfg, start_from=0):
         if cfg['max_processes_stereo_matching'] is not None:
             nb_workers_stereo = cfg['max_processes_stereo_matching']
         else:
-            nb_workers_stereo = nb_workers
+            nb_workers_stereo = max(1, int(nb_workers / 2.0))
         try:
 
             print(f'4) running stereo matching using {nb_workers_stereo} workers...')
             parallel.launch_calls(stereo_matching, tiles_pairs, nb_workers_stereo,
                           timeout=timeout)
-        except subprocess.CalledProcessError as e:
-            print(f'ERROR: stereo matching failed. In case this is due too little RAM set '
-                  f'"max_processes_stereo_matching" to a lower value (currently set to: {nb_workers_stereo}).')
-            raise e
+        except ValueError as e:
+            nb_workers_stereo /= 2.0
+            nb_workers_stereo = max(1, int(nb_workers_stereo))
+            print(f"Retrying stereo matching with {nb_workers_stereo} workers...")
+            parallel.launch_calls(stereo_matching, tiles_pairs, nb_workers_stereo,
+                          timeout=timeout)
 
     if start_from <= 5:
         if n > 2:

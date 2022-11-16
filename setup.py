@@ -43,6 +43,7 @@ except ImportError:
 
 
 requirements = ['numpy',
+                'psutil',
                 'scipy',
                 'rasterio[s3] @ https://github.com/rasterio/rasterio/archive/refs/tags/1.3.3.tar.gz',
                 'utm',
