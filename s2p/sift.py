@@ -291,6 +291,10 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
                                                  max_err=0.3)[0]
         matches = matches[inliers]
         
+        if len(matches) == 0:
+            print("WARNING: no matches found")
+            return None
+        
     elif matching_method == "superglue":
         p1, p2 = get_keypoints_superglue(im1, im2, min_value, max_value, x, x2, y, y2, w, w2, h, h2, rpc_match=True)
         p1[:, 0] += x
@@ -298,6 +302,10 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         p2[:, 0] += x2
         p2[:, 1] += y2
         matches = np.hstack((p1, p2))
+        
+        if len(matches) == 0:
+            print("WARNING: no matches found")
+            return None
 
     elif matching_method == "sift":
         # if less than 10 matches, lower thresh_dog. An alternative would be ASIFT
