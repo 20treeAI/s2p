@@ -291,8 +291,8 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
                                                  max_err=0.3)[0]
         matches = matches[inliers]
         
-        if len(matches) == 0:
-            print("WARNING: no matches found")
+        if len(matches) == 0 and matches.ndim != 2:
+            print("WARNING: sift.matches_on_rpc_roi: found no matches.")
             return None
         
     elif matching_method == "superglue":
@@ -303,8 +303,8 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         p2[:, 1] += y2
         matches = np.hstack((p1, p2))
         
-        if len(matches) == 0:
-            print("WARNING: no matches found")
+        if len(matches) == 0 and matches.ndim != 2:
+            print("WARNING: sift.matches_on_rpc_roi: found no matches.")
             return None
 
     elif matching_method == "sift":
