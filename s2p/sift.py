@@ -296,7 +296,8 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
                                                  max_err=0.3)[0]
             matches = matches[inliers]
         else:
-            return matches
+            print("WARNING: sift.matches_on_rpc_roi: not enough matches.")
+            return None
         
 
         
@@ -308,7 +309,7 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         p2[:, 1] += y2
         matches = np.hstack((p1, p2))
         
-        if len(matches) == 0 or matches.ndim != 2:
+        if len(matches) <= 10 or matches.ndim != 2:
             print("WARNING: sift.matches_on_rpc_roi: found no matches.")
             return None
 
