@@ -337,7 +337,14 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         p2[:, 0] += x2
         p2[:, 1] += y2
         matches = np.hstack((p1, p2))
-
+        if len(matches) == 0 or matches.ndim != 2:
+            print("WARNING: sift.matches_on_rpc_roi: found no matches.")
+            return None
+        elif len(matches) > 10:
+            inliers = ransac.find_fundamental_matrix(matches, ntrials=1000,
+                                                 max_err=0.3)[0]
+            matches = matches[inliers]
+        
         p1_sg, p2_sg = get_keypoints_superglue(im1, im2, min_value, max_value, x, x2, y, y2, w, w2, h, h2, rpc_match=True)
         p1_sg[:, 0] += x
         p1_sg[:, 1] += y
@@ -358,10 +365,13 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         else:
             print("WARNING: sift.matches_on_rpc_roi: found no matches.")
             return None
-
+        
         matches = np.vstack((matches, matches_sg, matches_sift))
-
-        inliers = ransac.find_fundamental_matrix(matches, ntrials=1000,
-                                                 max_err=0.3)[0]
-        matches = matches[inliers]
+        
+        if len(matches) < 10:
+            return None
+        else:
+            inliers = ransac.find_fundamental_matrix(matches, ntrials=1000,
+                                                     max_err=0.3)[0]
+            matches = matches[inliers]
     return matches
