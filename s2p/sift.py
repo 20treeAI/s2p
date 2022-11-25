@@ -362,16 +362,10 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
             if matches_sift is not None and matches_sift.ndim == 2 and matches_sift.shape[0] > 10:
                 break
             thresh_dog /= 2.0
-        else:
-            print("WARNING: sift.matches_on_rpc_roi: found no matches.")
-            return None
         
         matches = np.vstack((matches, matches_sg, matches_sift))
         
         if len(matches) < 10:
             return None
-        else:
-            inliers = ransac.find_fundamental_matrix(matches, ntrials=1000,
-                                                     max_err=0.3)[0]
-            matches = matches[inliers]
+
     return matches
