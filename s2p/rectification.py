@@ -329,7 +329,7 @@ def rectify_pair(im1, im2, rpc1, rpc2, x, y, w, h, out1, out2, A=None, sift_matc
         if A is not None:
             matches[:, 2:] = common.points_apply_homography(np.linalg.inv(A),
                                                             matches[:, 2:])
-        )
+
 
     # compute rectifying homographies
     H1, H2, F = rectification_homographies(matches, x, y, w, h)
