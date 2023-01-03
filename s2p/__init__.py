@@ -24,12 +24,13 @@ import os.path
 import json
 import datetime
 import multiprocessing
+import glob
+import os
 
 import numpy as np
 import rasterio
 import rasterio.merge
 from plyflatten import plyflatten_from_plyfiles_list
-
 
 from s2p.config import cfg
 from s2p import common
@@ -89,7 +90,17 @@ def check_missing_sift(tiles_pairs):
         print(" --- ")
         print(f"WARNING: missing {len(missing_sift)}/{len(tiles_pairs)} "
               "SIFT matches, this may deteriorate output quality")
+        print(" --- ")
 
+
+def merge_all_match_files():
+    read_files = glob.glob("**/*sift_matches.txt", recursive=True)
+    with open(os.path.join(cfg["out_dir"], "merged_sift_matches.txt"), "w") as outfile:
+        for f in read_files:
+            if os.stat(f).st_size == 0:
+                continue
+            with open(f, "r") as infile:
+                outfile.write(infile.read())
 
 def pointing_correction(tile, i):
     """
@@ -111,7 +122,8 @@ def pointing_correction(tile, i):
     method = 'relative' if cfg['relative_sift_match_thresh'] is True else 'absolute'
     A, m = pointing_accuracy.compute_correction(
         img1, img2, rpc1, rpc2, x, y, w, h, method,
-        cfg['sift_match_thresh'], cfg['max_pointing_error']
+        cfg['sift_match_thresh'], cfg['max_pointing_error'], cfg['matching_method'],
+        cfg['min_value'], cfg['max_value'], cfg['confidence_threshold']
     )
 
     if A is not None:  # A is the correction matrix
@@ -644,7 +656,16 @@ def main(user_cfg, start_from=0):
         if cfg['max_processes_stereo_matching'] is not None:
             nb_workers_stereo = cfg['max_processes_stereo_matching']
         else:
-            nb_workers_stereo = nb_workers
+            # Set the number of stereo workers to the number of workers divided
+            # by a certain amount depending on the tile_size and number of tiles
+            # this should be a generally safe number of workers.
+            divider = 2 * (cfg['tile_size'] / 800.0) * (cfg['tile_size'] / 800.0)
+            divider *= (len(tiles_pairs) / 500.0)
+            if cfg['matching_algorithm'] == 'mgm_multi':
+                nb_workers_stereo = int(min(nb_workers, max(1, int(nb_workers / divider))))
+            else:
+                # For non mgm_multi don't use less than 2/3 of the workers (much less RAM intensive)
+                nb_workers_stereo = int(min(nb_workers, max(((2 / 3) * nb_workers), nb_workers / divider)))
         try:
 
             print(f'4) running stereo matching using {nb_workers_stereo} workers...')
