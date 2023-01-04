@@ -101,12 +101,12 @@ def correct_points(matches_gdf: gpd.GeoDataFrame, rpc_model_path: str, every_x_m
     # Iterate over matches and correct them.
     for i, point in enumerate(matches_gdf):
         localized_point = localize_row_col_geometry(point, rpc_model)
-        corr_points.append(list(localized_point))
+        corrected_points.append(list(localized_point))
         
     # Prepare the lons and lats for returning
-    corr_points = np.array(corr_points)
-    lons = corr_points[:, 0]
-    lats = corr_points[:, 1]
+    corrected_points = np.array(corrected_points)
+    lons = corrected_points[:, 0]
+    lats = corrected_points[:, 1]
     
     return lons, lats
 
