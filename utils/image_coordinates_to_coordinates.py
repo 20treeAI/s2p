@@ -92,7 +92,10 @@ def correct_points(matches_gdf: gpd.GeoDataFrame, rpc_model_path: str, every_x_m
     return: two numpy arrays, (lons and lats).
     """
     corrected_points = []
-    rpc_model = rpc_from_rpc_file(rpc_model_path)
+    if type(rpc_model_path) == str:
+        rpc_model = rpc_from_rpc_file(rpc_model_path)
+    else:
+        rpc_model = rpc_model_path
     matches_gdf = matches_gdf["geometry"][::every_x_match]
     
     # Iterate over matches and correct them.
