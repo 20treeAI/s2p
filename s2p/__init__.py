@@ -46,6 +46,7 @@ from s2p import ply
 from s2p import triangulation
 from s2p import fusion
 from s2p import visualisation
+from utils.image_coordinates_to_coordinates import matches_to_geojson
 
 
 def remove_missing_tiles(tiles):
@@ -92,7 +93,11 @@ def check_missing_sift(tiles_pairs):
         print(f"WARNING: missing {len(missing_sift)}/{len(tiles_pairs)} "
               "SIFT matches, this may deteriorate output quality")
 
+        
 def merge_all_match_files():
+    """
+    Merges together all non-empty match files into one .txt file and saves them in the output directory.
+    """
     read_files = glob.glob("**/*sift_matches.txt", recursive=True)
     with open(os.path.join(cfg["out_dir"], "merged_sift_matches.txt"), "w") as outfile:
         for f in read_files:
@@ -640,7 +645,16 @@ def main(user_cfg, start_from=0):
         print('2) correcting pointing globally...')
         global_pointing_correction(tiles)
         common.print_elapsed_time()
-
+    
+    # Create matches GeoJSON.
+    print("Creating matches GeoJSON")
+    merge_all_match_files()
+    matches_to_geojson(f"{cfg['out_dir']}/merged_sift_matches.txt",
+                       cfg['images'][0]['rpcm'],
+                       10,
+                       [0, 1],
+                       f"{cfg['out_dir']}/matches.geojson"
+    )
     # rectification step:
     if start_from <= 3:
         print('3) rectifying tiles...')
@@ -704,6 +718,7 @@ def main(user_cfg, start_from=0):
     if start_from <= 7:
         print('7) computing global DSM...')
         global_dsm(tiles)
+        
     common.print_elapsed_time()
 
     # cleanup

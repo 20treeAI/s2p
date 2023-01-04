@@ -120,5 +120,10 @@ def points_to_geojson(out_path: str, lons: np.ndarray, lats: np.ndarray):
     gdf_corrected.to_file(out_path, driver="GeoJSON")
     
     
+def matches_to_geojson(path_to_matches: str, path_to_rpc: str, every_x_match: int, match_columns: list, out_path: str):
+    matches_gdf = read_and_prepare_matches(path_to_matches, match_columns)
+    lons, lats = correct_points(matches_gdf, path_to_rpc, every_x_match)
+    points_to_geojson(out_path, lons, lats)
+    
 
     
