@@ -119,7 +119,7 @@ def points_to_geojson(out_path: str, lons: np.ndarray, lats: np.ndarray):
     lons: The longitudes returned by correct_points.
     lats: The latitudes returned by correct_points.
     """
-    gdf_corrected = gpd.GeoDataFrame(geometry=gpd.points_from_xy(lon, lat, crs="EPSG:4326"))
+    gdf_corrected = gpd.GeoDataFrame(geometry=gpd.points_from_xy(lons, lats, crs="EPSG:4326"))
     gdf_corrected.to_file(out_path, driver="GeoJSON")
     
     
