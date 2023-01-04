@@ -25,6 +25,8 @@ def localize_row_col_geometry(
         A tuple containing (new longitude, new latitude).
     """
     points = []
+    col_idx, row_idx = geometry.coords[0]
+    points.append((col_idx, row_idx))
     col_indices, row_indices = np.asarray(points).T
     coords = [
         rpc_model.localization(col_idx, row_idx, 0)
