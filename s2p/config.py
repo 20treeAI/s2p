@@ -177,3 +177,6 @@ cfg['out_crs'] = None
 # If the out_crs is not set this parameter determines if the output CRS uses the EGM96 geoid vertical datum (if True)
 # or the WGS84 ellipsoid vertical datum (if False). If out_crs is set, this parameter is ignored.
 cfg['out_geoid'] = False
+
+# Create an output GeoJSON containing all of the matches created by sift.py
+cfg["return_matches"] = False
