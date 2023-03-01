@@ -320,15 +320,6 @@ def rectify_pair(im1, im2, rpc1, rpc2, x, y, w, h, out1, out2, A=None, sift_matc
 
     else:
         raise Exception("Unknown value {} for argument 'method'".format(method))
-
-    if matches is None or len(matches) < 4:
-        matches = rpc_utils.matches_from_rpc(rpc1, rpc2, x, y, w, h,
-                                                     cfg['n_gcp_per_axis'])
-
-        # correct second image coordinates with the pointing correction matrix
-        if A is not None:
-            matches[:, 2:] = common.points_apply_homography(np.linalg.inv(A),
-                                                            matches[:, 2:])
             
     # If there are still no matches, raise the no matches error.
     if matches is None or len(matches) < 4:
