@@ -4,7 +4,7 @@ import rasterio
 import numpy as np
 import geopandas as gpd
 import shapely
-from shapely import Point
+from shapely.geometry import Point
 import srtm4
 from rpcm import RPCModel, rpc_from_rpc_file
 import geopy
