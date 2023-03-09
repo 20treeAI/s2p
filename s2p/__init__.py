@@ -646,16 +646,7 @@ def main(user_cfg, start_from=0):
         print('2) correcting pointing globally...')
         global_pointing_correction(tiles)
         common.print_elapsed_time()
-    
-    # Create matches GeoJSON.
-    print("Creating matches GeoJSON")
-    merge_all_match_files()
-    matches_to_geojson(f"{cfg['out_dir']}/merged_sift_matches.txt",
-                       cfg['images'][0]['rpcm'],
-                       10,
-                       [0, 1],
-                       f"{cfg['out_dir']}/matches.geojson"
-    )
+        
     # rectification step:
     if start_from <= 3:
         print('3) rectifying tiles...')
