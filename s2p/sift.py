@@ -302,20 +302,20 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
             print("WARNING: sift.matches_on_rpc_roi: not enough matches.")
             return None
         
-
         
     elif matching_method == "superglue":
         p1, p2 = get_keypoints_superglue(im1, im2, min_value, max_value, x, x2, y, y2, w, w2, h, h2, rpc_match=True)
         if len(p1) < 10 or len(p2) < 10:
             print("WARNING: sift.matches_on_rpc_roi: found no matches.")
             return None
+        
         p1[:, 0] += x
         p1[:, 1] += y
         p2[:, 0] += x2
         p2[:, 1] += y2
         matches = np.hstack((p1, p2))
         
-        if len(matches) <= 10 or matches.ndim != 2:
+        if matches.ndim != 2:
             print("WARNING: sift.matches_on_rpc_roi: found no matches.")
             return None
 
@@ -335,6 +335,7 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
             print("WARNING: sift.matches_on_rpc_roi: found no matches.")
             return None
 
+        
     elif matching_method == "all":
         p1, p2 = get_keypoints_loftr(im1, im2, min_value, max_value, confidence_threshold, 
                                      x, x2, y, y2, w, w2, h, h2, rpc_match=True)
