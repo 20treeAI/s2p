@@ -346,7 +346,7 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         matches = np.hstack((p1, p2))
         if len(matches) == 0 or matches.ndim != 2:
             print("WARNING: sift.matches_on_rpc_roi: found no matches.")
-            return None
+            matches = None
         elif len(matches) > 10:
             inliers = ransac.find_fundamental_matrix(matches, ntrials=1000,
                                                  max_err=0.3)[0]
