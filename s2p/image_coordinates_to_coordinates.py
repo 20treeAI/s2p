@@ -1,14 +1,16 @@
 import glob
 import os
+
 import rasterio
 import numpy as np
 import geopandas as gpd
 import shapely
 from shapely.geometry import Point
-import srtm4
-from rpcm import RPCModel, rpc_from_rpc_file
 import geopy
 import geopy.distance
+import srtm4
+
+from rpcm import RPCModel, rpc_from_rpc_file
 
 
 def localize_row_col_geometry(
@@ -127,6 +129,3 @@ def matches_to_geojson(path_to_matches: str, path_to_rpc: str, every_x_match: in
     matches_gdf = read_and_prepare_matches(path_to_matches, match_columns)
     lons, lats = correct_points(matches_gdf, path_to_rpc, every_x_match)
     points_to_geojson(out_path, lons, lats)
-    
-
-    
