@@ -56,7 +56,8 @@ requirements = ['numpy==1.22.2',
                 'requests',
                 'opencv-python',
                 'geopandas',
-                'geopy']
+                'geopy',
+                'tensorflow']
 
 extras_require = {
     "test": ["pytest", "pytest-cov", "psutil"],

@@ -10,7 +10,7 @@ from aggregation import Hourglass, FeatureFusion
 from computation import Estimation
 from refinement import Refinement
 from data_reader import read_left, read_right
-from evaluation import evaluate_all
+from evaluation_disparity import evaluate_all
 import cv2
 
 

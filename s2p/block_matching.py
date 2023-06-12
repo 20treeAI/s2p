@@ -10,6 +10,8 @@ import rasterio
 from s2p import common
 from s2p.config import cfg
 
+from hmsmnet import HMSMNet
+
 
 class MaxDisparityRangeError(Exception):
     pass
@@ -308,7 +310,15 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
         )
 
         create_rejection_mask(disp, im1, im2, mask)
-
+        
+    if algo == 'hmsmnet':
+        net = HMSMNet(1024, 1024, 1, -128, 64)
+        net.build_model()
+        net.load_weights("HMSM-Net.h5")
+        
+        net.predict(im2, im1, disp)
+        create_rejection_mask(disp, im2, im1, mask)
+        
     if (algo == 'micmac'):
         # add micmac binaries to the PATH environment variable
         s2p_dir = os.path.dirname(os.path.dirname(os.path.realpath(os.path.abspath(__file__))))
