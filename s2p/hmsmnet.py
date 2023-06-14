@@ -4,13 +4,13 @@ import time
 import numpy as np
 import tensorflow.keras as keras
 from PIL import Image
-from feature import FeatureExtraction
-from cost import CostConcatenation
-from aggregation import Hourglass, FeatureFusion
-from computation import Estimation
-from refinement import Refinement
-from data_reader import read_left, read_right
-from evaluation_disparity import evaluate_all
+from s2p.feature import FeatureExtraction
+from s2p.cost import CostConcatenation
+from s2p.aggregation import Hourglass, FeatureFusion
+from s2p.computation import Estimation
+from s2p.refinement import Refinement
+from s2p.data_reader import read_left, read_right
+from s2p.evaluation_disparity import evaluate_all
 import cv2
 
 
@@ -72,7 +72,7 @@ class HMSMNet:
 
         self.model = keras.Model(inputs=[left_image, right_image, gx, gy],
                                  outputs=[disparity2, disparity1, disparity0, final_disp])
-        self.model.summary()
+        #self.model.summary()
 
     def load_weights(self, weights):
         self.model.load_weights(weights)

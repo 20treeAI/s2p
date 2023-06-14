@@ -8,9 +8,8 @@ import numpy as np
 import rasterio
 
 from s2p import common
+from s2p.hmsmnet import HMSMNet
 from s2p.config import cfg
-
-from hmsmnet import HMSMNet
 
 
 class MaxDisparityRangeError(Exception):
@@ -60,6 +59,7 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
             and if the [disp_min, disp_max] range is greater
             than max_disp_range, to avoid endless computation.
     """
+    print(algo)
     # limit disparity bounds
     if disp_min is not None and disp_max is not None:
         with rasterio.open(im1, "r") as f:
@@ -88,6 +88,13 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
     # define environment variables
     env = os.environ.copy()
     env['OMP_NUM_THREADS'] = str(cfg['omp_num_threads'])
+
+    if algo == 'hmsmnet':
+        model = HMSMNet(1024, 1024, 1, -128, 64)
+        model.build_model()
+        model.load_weights("s2p/HMSM-Net.h5")
+        model.predict(im1, im2, disp)
+        create_rejection_mask(disp, im1, im2, mask)
 
     # call the block_matching binary
     if algo == 'hirschmuller02':
@@ -310,15 +317,7 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
         )
 
         create_rejection_mask(disp, im1, im2, mask)
-        
-    if algo == 'hmsmnet':
-        net = HMSMNet(1024, 1024, 1, -128, 64)
-        net.build_model()
-        net.load_weights("HMSM-Net.h5")
-        
-        net.predict(im2, im1, disp)
-        create_rejection_mask(disp, im2, im1, mask)
-        
+
     if (algo == 'micmac'):
         # add micmac binaries to the PATH environment variable
         s2p_dir = os.path.dirname(os.path.dirname(os.path.realpath(os.path.abspath(__file__))))

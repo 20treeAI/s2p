@@ -7,17 +7,18 @@
   "roi" : {
       "x" : 150,
       "y" : 150,
-      "w" : 700,
-      "h" : 700
+      "w" : 1000,
+      "h" : 1000
   },
   "horizontal_margin": 20,
   "vertical_margin": 5,
-  "tile_size" : 300,
+  "tile_size" : 1000,
+  "matching_algorithm": "hmsmnet",
   "disp_range_method" : "sift",
   "msk_erosion": 0,
   "dsm_resolution": 0.5,
   "3d_filtering_r": 5,
   "3d_filtering_n": 50,
-  "matching_algorithm": "hmsmnet",
-  "debug": true
+  "debug": true,
+  "clean_intermediate": false
 }

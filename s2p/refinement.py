@@ -1,6 +1,6 @@
 import tensorflow as tf
 import tensorflow.keras as keras
-from feature import conv2d, L2
+from s2p.feature import conv2d, L2
 
 
 def conv_bn_act(filters, kernel_size, strides, padding, dilation_rate):
