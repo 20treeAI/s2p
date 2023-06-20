@@ -90,7 +90,7 @@ class HMSMNet:
         disparity = self.model.predict([left_image, right_image, gx, gy])
         disparity = disparity[-1][0, :, :, 0]
         disparity *= disparity_increase
-        disparity = np.nan_to_num(disparity, -9999)
+        disparity[disparity == 0] = np.nan
         disparity = cv2.resize(disparity, (left_shape[1], left_shape[0]))
         disparity = Image.fromarray(disparity)
         disparity.save(output_path)

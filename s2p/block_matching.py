@@ -59,7 +59,6 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
             and if the [disp_min, disp_max] range is greater
             than max_disp_range, to avoid endless computation.
     """
-    print(algo)
     # limit disparity bounds
     if disp_min is not None and disp_max is not None:
         with rasterio.open(im1, "r") as f:
