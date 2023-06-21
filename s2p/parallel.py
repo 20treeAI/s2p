@@ -108,3 +108,58 @@ def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
     pool.join()
     common.print_elapsed_time()
     return outputs
+
+
+def launch_pool(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
+                timeout=600):
+    """
+    Run a function several times in parallel with different given inputs.
+
+    Args:
+        fun: function to be called several times in parallel.
+        list_of_args: list of (first positional) arguments passed to fun, one
+            per call
+        nb_workers: number of calls run simultaneously
+        extra_args (optional): tuple containing extra arguments to be passed to
+            fun (same value for all calls)
+        tilewise (bool): whether the calls are run tilewise or not
+        timeout (int): timeout for each function call (in seconds)
+
+    Return:
+        list of outputs
+    """
+    pool = multiprocessing.Pool(nb_workers)
+    args_list = []
+
+    for x in list_of_args:
+        args = ()
+        if type(x) == tuple:
+            args += x
+        else:
+            args += (x,)
+        args += extra_args
+        if tilewise:
+            if type(x) == tuple:  # we expect x = (tile_dictionary, pair_id)
+                log = os.path.join(x[0]['dir'], 'pair_%d' % x[1], 'stdout.log')
+            else:  # we expect x = tile_dictionary
+                log = os.path.join(x['dir'], 'stdout.log')
+            args = (fun,) + args
+            args = {'args': args, 'kwds': {'stdout': log}}
+            args_list.append(args)
+        else:
+            args_list.append({'args': (fun,) + args})
+
+    if tilewise:
+        fun = tilewise_wrapper
+
+    try:
+        outputs = pool.map(lambda args: fun(*args['args'], **args['kwds']), args_list, timeout)
+    except KeyboardInterrupt:
+        pool.terminate()
+        sys.exit(1)
+
+    pool.close()
+    pool.join()
+    common.print_elapsed_time()
+    return outputs
+

@@ -699,7 +699,7 @@ def main(user_cfg, start_from=0, merge_matches=False):
 
             # heights-to-ply step:
             print('5d) merging height maps and computing point clouds...')
-            parallel.launch_calls(heights_to_ply, tiles, nb_workers,
+            parallel.launch_pool(heights_to_ply, tiles, nb_workers,
                                   timeout=timeout)
         else:
             # triangulation step:
