@@ -4,7 +4,7 @@
 import os
 import sys
 import traceback
-import multiprocessing
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from s2p import common
 from s2p.config import cfg
@@ -55,8 +55,7 @@ def tilewise_wrapper(fun, *args, **kwargs):
     return out
 
 
-def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
-                 timeout=600):
+def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True, timeout=600):
     """
     Run a function several times in parallel with different given inputs.
 
@@ -73,38 +72,38 @@ def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
     Return:
         list of outputs
     """
-    results = []
     outputs = []
     show_progress.counter = 0
     show_progress.total = len(list_of_args)
-    pool = multiprocessing.Pool(nb_workers)
-    for x in list_of_args:
-        args = tuple()
-        if type(x) == tuple:
-            args += x
-        else:
-            args += (x,)
-        args += extra_args
-        if tilewise:
-            if type(x) == tuple:  # we expect x = (tile_dictionary, pair_id)
-                log = os.path.join(x[0]['dir'], 'pair_%d' % x[1], 'stdout.log')
-            else:  # we expect x = tile_dictionary
-                log = os.path.join(x['dir'], 'stdout.log')
-            args = (fun,) + args
-            results.append(pool.apply_async(tilewise_wrapper, args=args,
-                                            kwds={'stdout': log},
-                                            callback=show_progress))
-        else:
-            results.append(pool.apply_async(fun, args=args, callback=show_progress))
 
-    for r in results:
-        try:
-            outputs.append(r.get(timeout))
-        except KeyboardInterrupt:
-            pool.terminate()
-            sys.exit(1)
+    with ProcessPoolExecutor(max_workers=nb_workers) as executor:
+        futures = []
+        for x in list_of_args:
+            args = tuple()
+            if isinstance(x, tuple):
+                args += x
+            else:
+                args += (x,)
+            args += extra_args
+            if tilewise:
+                if isinstance(x, tuple):  # we expect x = (tile_dictionary, pair_id)
+                    log = os.path.join(x[0]['dir'], 'pair_%d' % x[1], 'stdout.log')
+                else:  # we expect x = tile_dictionary
+                    log = os.path.join(x['dir'], 'stdout.log')
+                args = (fun,) + args
+                futures.append(executor.submit(tilewise_wrapper, *args, stdout=log))
+            else:
+                futures.append(executor.submit(fun, *args))
 
-    pool.close()
-    pool.join()
+        for future in as_completed(futures):
+            try:
+                result = future.result(timeout)
+                outputs.append(result)
+                show_progress(None)  # Update progress after each future completes
+            except KeyboardInterrupt:
+                sys.exit(1)
+            except Exception as e:
+                print("Exception occurred during future execution.", str(e))
+
     common.print_elapsed_time()
     return outputs
