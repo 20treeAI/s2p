@@ -34,11 +34,13 @@ def show_progress(a):
 def tilewise_wrapper(fun, *args, **kwargs):
     """
     """
-    if not cfg['debug']:  # redirect stdout and stderr to log file
-        f = open(kwargs['stdout'], 'a')
-        sys.stdout = f
-        sys.stderr = f
-
+    try:
+        if not cfg['debug']:  # redirect stdout and stderr to log file
+            f = open(kwargs['stdout'], 'a')
+            sys.stdout = f
+            sys.stderr = f
+    except:
+        pass
     try:
         out = fun(*args)
     except Exception:
@@ -47,11 +49,13 @@ def tilewise_wrapper(fun, *args, **kwargs):
         raise
 
     common.garbage_cleanup()
-    if not cfg['debug']:  # close logs
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
-        f.close()
-
+    try:
+        if not cfg['debug']:  # close logs
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+            f.close()
+    except:
+        pass
     return out
 
 
@@ -108,24 +112,11 @@ def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
     pool.join()
     common.print_elapsed_time()
     return outputs
-
-
-def call_fun_with_timeout(args):
-    fun(*args['args'], **args['kwds'])
-
-    args_list = [...]  # Replace [...] with your actual list of arguments
-    timeout = ...  # Replace ... with your desired timeout value
-
-    for args in args_list:
-        try:
-            call_with_timeout(args)
-        except TimeoutError:
-            # Handle timeout error here
-            pass
     
 
 def call_fun_with_timeout(args, fun):
     return fun(*args['args'], **args['kwds'])
+
 
 def launch_pool(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
                 timeout=600):
@@ -146,31 +137,8 @@ def launch_pool(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
         list of outputs
     """
     pool = multiprocessing.Pool(nb_workers)
-    args_list = []
-
-    for x in list_of_args:
-        args = ()
-        if type(x) == tuple:
-            args += x
-        else:
-            args += (x,)
-        args += extra_args
-        if tilewise:
-            if type(x) == tuple:  # we expect x = (tile_dictionary, pair_id)
-                log = os.path.join(x[0]['dir'], 'pair_%d' % x[1], 'stdout.log')
-            else:  # we expect x = tile_dictionary
-                log = os.path.join(x['dir'], 'stdout.log')
-            args = (fun,) + args
-            args = {'args': args, 'kwds': {'stdout': log}}
-            args_list.append(args)
-        else:
-            args_list.append({'args': (fun,) + args})
-
-    if tilewise:
-        fun = tilewise_wrapper
-
     try:
-        outputs = pool.map(call_fun_with_timeout, [(args, fun) for args in args_list], timeout)
+        outputs = pool.map(fun, list_of_args)
     except KeyboardInterrupt:
         pool.terminate()
         sys.exit(1)
