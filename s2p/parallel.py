@@ -110,6 +110,23 @@ def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
     return outputs
 
 
+def call_fun_with_timeout(args):
+    fun(*args['args'], **args['kwds'])
+
+    args_list = [...]  # Replace [...] with your actual list of arguments
+    timeout = ...  # Replace ... with your desired timeout value
+
+    for args in args_list:
+        try:
+            call_with_timeout(args)
+        except TimeoutError:
+            # Handle timeout error here
+            pass
+    
+
+def call_fun_with_timeout(args, fun):
+    return fun(*args['args'], **args['kwds'])
+
 def launch_pool(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
                 timeout=600):
     """
@@ -153,7 +170,7 @@ def launch_pool(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
         fun = tilewise_wrapper
 
     try:
-        outputs = pool.map(lambda args: fun(*args['args'], **args['kwds']), args_list, timeout)
+        outputs = pool.map(call_fun_with_timeout, [(args, fun) for args in args_list], timeout)
     except KeyboardInterrupt:
         pool.terminate()
         sys.exit(1)
