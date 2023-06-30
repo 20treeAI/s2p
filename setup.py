@@ -42,7 +42,7 @@ except ImportError:
     BdistWheel = None
 
 
-requirements = ['numpy==1.22.2',
+requirements = ['numpy==1.25.0',
                 'scipy',
                 'rasterio[s3] @ https://github.com/rasterio/rasterio/archive/refs/tags/1.3.6.tar.gz',
                 'utm',
