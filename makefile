@@ -97,8 +97,9 @@ SRCIIO   = backflow qauto morsi cldmask remove_small_cc\
 PROGRAMS = $(addprefix bin/,$(SRCIIO))
 
 executables: $(PROGRAMS)
-# add -fopenmp to CFLAGS
+# add -fopenmp to CFLAGS and LDFLAGS
 CFLAGS += -fopenmp
+LDFLAGS += -fopenmp
 
 # generic rule for building binary objects from C sources
 c/%.o : c/%.c
@@ -110,18 +111,13 @@ c/%.o: c/%.cpp
 
 # generic rule to build most imscript binaries
 bin/% : c/%.o c/iio.o
-	$(CC) $^ -o $@ $(IIOLIBS)
+	$(CC) $(LDFLAGS) $^ -o $@ $(IIOLIBS)
 
-
-#
 # rules to build the dynamic objects that are used via ctypes
-#
-
 libraries: lib/disp_to_h.so
 
 lib/disp_to_h.so: c/disp_to_h.o c/iio.o c/rpc.o
-	$(CC) -shared $^ $(IIOLIBS) -o $@
-
+	$(CC) -shared $(LDFLAGS) $^ $(IIOLIBS) -o $@
 
 
 
