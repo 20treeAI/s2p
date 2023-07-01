@@ -197,8 +197,14 @@ def height_map_to_xyz(heights, rpc, off_x=0, off_y=0, out_crs=None):
             coordinates of the triangulated point in the coordinate system
             defined by `out_crs`
     """
+    print("Starting height_map_to_xyz function...")
+    start_time = time.time()
+
+    print("Reading heights from file...")
+    start_read_time = time.time()
     with rasterio.open(heights) as src:
         h_map = src.read(1)
+    print(f"Finished reading heights. Elapsed time: {time.time() - start_read_time} seconds")
 
     h, w = h_map.shape
 
@@ -214,12 +220,15 @@ def height_map_to_xyz(heights, rpc, off_x=0, off_y=0, out_crs=None):
     cols = cols + off_x
     rows = rows + off_y
 
-    # localize pixels
+    print("Localizing pixels...")
+    start_localize_time = time.time()
     lons = np.empty_like(heights, dtype=np.float64)
     lats = np.empty_like(heights, dtype=np.float64)
     lons[non_nan_ind], lats[non_nan_ind] = rpc.localization(cols, rows, alts)
+    print(f"Finished localizing pixels. Elapsed time: {time.time() - start_localize_time} seconds")
 
-    # output CRS conversion
+    print("Performing output CRS conversion...")
+    start_crs_conversion_time = time.time()
     in_crs = geographiclib.pyproj_crs("epsg:4979")
 
     if out_crs and out_crs != in_crs:
@@ -227,8 +236,11 @@ def height_map_to_xyz(heights, rpc, off_x=0, off_y=0, out_crs=None):
                                                  in_crs, out_crs, heights)
     else:
         x, y, z = lons, lats, heights
+    print(f"Finished output CRS conversion. Elapsed time: {time.time() - start_crs_conversion_time} seconds")
 
     xyz_array = np.column_stack((x, y, z)).reshape(h, w, 3)
+
+    print(f"Finished height_map_to_xyz function. Total elapsed time: {time.time() - start_time} seconds")
 
     return xyz_array
 
@@ -431,28 +443,43 @@ def write_to_ply(path_to_ply_file, xyz, colors=None, proj_com='', confidence='')
         confidence (str): path to an image containig a confidence map, optional
     """
     # flatten the xyz array into a list and remove nan points
+    print("Starting write_to_ply function...")
+    start_time = time.time()
+
+    print("Flattening the xyz array and removing nan points...")
+    start_flatten_time = time.time()
     xyz_list = xyz.reshape(-1, 3)
     valid = np.all(np.isfinite(xyz_list), axis=1)
+    print(f"Finished flattening the xyz array. Elapsed time: {time.time() - start_flatten_time} seconds")
 
     if colors is not None:
+        print("Preparing colors list...")
+        start_colors_time = time.time()
         colors_list = colors.transpose(1, 2, 0).reshape(-1, colors.shape[0])[valid]
+        print(f"Finished preparing colors list. Elapsed time: {time.time() - start_colors_time} seconds")
     else:
         colors_list = None
 
-    # read extra field (confidence) if present
     if confidence != '':
+        print("Reading extra field (confidence)...")
+        start_extra_field_time = time.time()
         with rasterio.open(confidence, 'r') as f:
             img = f.read()
         extra_list  = img.flatten()[valid].astype(np.float32)
         extra_names = ['confidence']
+        print(f"Finished reading extra field (confidence). Elapsed time: {time.time() - start_extra_field_time} seconds")
     else:
         extra_list  = None
         extra_names = None
 
-    # write the point cloud to a ply file
+    print("Writing the point cloud to a ply file...")
+    start_ply_write_time = time.time()
     ply.write_3d_point_cloud_to_ply(path_to_ply_file, xyz_list[valid],
                                     colors=colors_list,
                                     extra_properties=extra_list,
                                     extra_properties_names=extra_names,
                                     comments=["created by S2P",
                                               "projection: {}".format(proj_com)])
+    print(f"Finished writing the point cloud to a ply file. Elapsed time: {time.time() - start_ply_write_time} seconds")
+
+    print(f"Finished write_to_ply function. Total elapsed time: {time.time() - start_time} seconds")

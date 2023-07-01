@@ -26,6 +26,7 @@ import datetime
 import multiprocessing
 import glob
 import os
+import time
 
 import numpy as np
 import rasterio
@@ -464,9 +465,17 @@ def heights_to_ply(tile):
         tile: a dictionary that provides all you need to process a tile
     """
     # merge the n-1 height maps of the tile (n = nb of images)
-    heights_fusion(tile)
 
-    # compute a ply from the merged height map
+    print("Starting heights_to_ply function...")
+    start_time = time.time()
+
+    print("Merging the n-1 height maps of the tile...")
+    start_merge_time = time.time()
+    heights_fusion(tile)
+    print(f"Finished merging the height maps. Elapsed time: {time.time() - start_merge_time} seconds")
+
+    print("Computing a ply from the merged height map...")
+    start_compute_ply_time = time.time()
     out_dir = tile['dir']
     x, y, w, h = tile['coordinates']
     plyfile = os.path.join(out_dir, 'cloud.ply')
@@ -479,25 +488,36 @@ def heights_to_ply(tile):
         with rasterio.open(cfg['images'][0]['img'], "r") as f:
             colors = f.read(window=((y, y + h), (x, x + w)))
 
-        colors = common.linear_stretching_and_quantization_8bit(colors)
+    colors = common.linear_stretching_and_quantization_8bit(colors)
 
     out_crs = geographiclib.pyproj_crs(cfg['out_crs'])
     xyz_array = triangulation.height_map_to_xyz(height_map,
                                                 cfg['images'][0]['rpcm'], x, y,
                                                 out_crs)
 
-    # 3D filtering
     r = cfg['3d_filtering_r']
     n = cfg['3d_filtering_n']
     if r and n:
+        print("Applying 3D filtering...")
+        start_3d_filtering_time = time.time()
         triangulation.filter_xyz(xyz_array, r, n, cfg['gsd'])
+        print(f"Finished 3D filtering. Elapsed time: {time.time() - start_3d_filtering_time} seconds")
 
     proj_com = "CRS {}".format(cfg['out_crs'])
+    print("Writing to ply file...")
+    start_ply_write_time = time.time()
     triangulation.write_to_ply(plyfile, xyz_array, colors, proj_com)
+    print(f"Finished writing to ply file. Elapsed time: {time.time() - start_ply_write_time} seconds")
 
     if cfg['clean_intermediate']:
+        print("Cleaning intermediate files...")
+        start_clean_intermediate_time = time.time()
         common.remove(height_map)
         common.remove(os.path.join(out_dir, 'mask.png'))
+        print(f"Finished cleaning intermediate files. Elapsed time: {time.time() - start_clean_intermediate_time} seconds")
+
+    print(f"Finished heights_to_ply function. Total elapsed time: {time.time() - start_time} seconds")
+
 
 
 def plys_to_dsm(tile):
