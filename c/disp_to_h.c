@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include <omp.h>
 
 #include "iio.h"
 #include "rpc.h"
@@ -86,7 +87,10 @@ void disp_to_lonlatalt(double *lonlatalt, float *err,  // outputs
     float row_min = orig_img_bounding_box[2];
     float row_max = orig_img_bounding_box[3];
 
-    // initialize output images to nan
+    omp_set_num_threads(omp_get_max_threads());
+
+    // Parallelize this loop
+    #pragma omp parallel for
     for (int row = 0; row < ny; row++)
     for (int col = 0; col < nx; col++) {
         int pix = col + nx*row;
@@ -101,9 +105,15 @@ void disp_to_lonlatalt(double *lonlatalt, float *err,  // outputs
 
     // loop over all the pixels of the input disp map
     // a 3D point is produced for each non-masked disparity
+    #pragma omp parallel for
     for (int row = 0; row < ny; row++)
     for (int col = 0; col < nx; col++) {
         int pix = col + nx*row;
+        
+        // intermediate buffers
+        double p[2], q[2], lonlat[2];
+        double e, z;
+
         if (!msk[pix])
             continue;
 
