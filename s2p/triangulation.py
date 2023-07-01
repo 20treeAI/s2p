@@ -2,6 +2,7 @@
 # Copyright (C) 2015, Gabriele Facciolo <facciolo@cmla.ens-cachan.fr>
 # Copyright (C) 2015, Enric Meinhardt <enric.meinhardt@cmla.ens-cachan.fr>
 
+import time
 import os
 import ctypes
 from ctypes import c_int, c_float, c_double, byref, POINTER
@@ -99,6 +100,9 @@ def disp_to_xyz(rpc1, rpc2, H1, H2, disp, mask_rect, img_bbx, mask_orig, A=None,
         A (array): 3x3 array with the pointing correction matrix for im2
         out_crs (pyproj.crs.CRS): object defining the desired coordinate
             reference system for the output xyz map
+    # Start of the function
+    start_time = time.time()
+    print("Starting disp_to_xyz function...")
 
     Returns:
         xyz: array of shape (h, w, 3) where each pixel contains the 3D
@@ -130,8 +134,12 @@ def disp_to_xyz(rpc1, rpc2, H1, H2, disp, mask_rect, img_bbx, mask_orig, A=None,
                                       POINTER(RPCStruct), POINTER(RPCStruct),
                                       ndpointer(dtype=c_float, shape=(4,)))
 
+    print("Time elapsed for prep work: ", time.time() - start_time)
 
-    # call the disp_to_lonlatalt function from disp_to_h.so
+    # Start of the disp_to_lonlatalt function call
+    start_time = time.time()
+    print("Starting disp_to_lonlatalt function call...")
+
     lonlatalt = np.zeros((h, w, 3), dtype='float64')
     err = np.zeros((h, w), dtype='float32')
     dispx = disp.astype('float32')
@@ -144,22 +152,29 @@ def disp_to_xyz(rpc1, rpc2, H1, H2, disp, mask_rect, img_bbx, mask_orig, A=None,
                           byref(rpc1_c_struct), byref(rpc2_c_struct),
                           np.asarray(img_bbx, dtype='float32'))
 
-    # output CRS conversion
+    print("Time elapsed for disp_to_lonlatalt function call: ", time.time() - start_time)
+
+    # Start of CRS conversion
+    start_time = time.time()
+    print("Starting CRS conversion...")
+
     in_crs = geographiclib.pyproj_crs("epsg:4979")
-
     if out_crs and out_crs != in_crs:
-
-        # reshape the lonlatlat array into a 3-column 2D-array
         lonlatalt = lonlatalt.reshape(-1, 3)
-
         x, y, z = geographiclib.pyproj_transform(lonlatalt[:, 0], lonlatalt[:, 1],
                                                  in_crs, out_crs, lonlatalt[:, 2])
-
         xyz_array = np.column_stack((x, y, z)).reshape(h, w, 3).astype(np.float64)
     else:
         xyz_array = lonlatalt
 
+    print("Time elapsed for CRS conversion: ", time.time() - start_time)
+
+    print("Finished disp_to_xyz function. Total time elapsed: ", time.time() - start_time)
+
     return xyz_array, err
+
+
+
 
 
 def height_map_to_xyz(heights, rpc, off_x=0, off_y=0, out_crs=None):
@@ -366,27 +381,40 @@ def height_map(x, y, w, h, rpc1, rpc2, H1, H2, disp, mask, mask_orig, A=None):
     # the rectangular tile in original image is extended by p pixels in both
     # directions to avoid border effects when resampling the height map from
     # rectified domain to original domain
+
     p = 1
 
+    start_time = time.time()
+    print("Starting disp_to_xyz...")
     xyz, err = disp_to_xyz(rpc1, rpc2, H1, H2, disp, mask,
-                           img_bbx=(x-p, x+w+2*p, y-p, y+h+2*p),
-                           mask_orig=np.pad(mask_orig, p, constant_values=1),
-                           A=A, out_crs=None)
-    height_map = xyz[:, :, 2].squeeze()
+                        img_bbx=(x-p, x+w+2*p, y-p, y+h+2*p),
+                        mask_orig=np.pad(mask_orig, p, constant_values=1),
+                        A=A, out_crs=None)
+    print("Finished disp_to_xyz. Time elapsed: ", time.time() - start_time)
 
-    # transfer the rectified height map onto an unrectified height map
+    start_time = time.time()
+    print("Starting to squeeze height_map...")
+    height_map = xyz[:, :, 2].squeeze()
+    print("Finished squeezing height_map. Time elapsed: ", time.time() - start_time)
+
+    start_time = time.time()
+    print("Starting affine_transform on height_map...")
     H = np.dot(H1, common.matrix_translation(x, y))
     out = ndimage.affine_transform(np.nan_to_num(height_map).T, H,
-                                   output_shape=(w, h), order=1).T
+                                output_shape=(w, h), order=1).T
+    print("Finished affine_transform on height_map. Time elapsed: ", time.time() - start_time)
 
-    # nearest-neighbor interpolation of nan locations in the resampled image
+    start_time = time.time()
+    print("Starting handling of nan locations...")
     if np.isnan(height_map).any():
         i = ndimage.affine_transform(np.isnan(height_map).T, H,
-                                     output_shape=(w, h), order=0).T
+                                    output_shape=(w, h), order=0).T
         i = ndimage.binary_dilation(i, structure=np.ones((3, 3)))
         out[i] = np.nan  # put nans back in the resampled image
+    print("Finished handling of nan locations. Time elapsed: ", time.time() - start_time)
 
     return out
+
 
 
 def write_to_ply(path_to_ply_file, xyz, colors=None, proj_com='', confidence=''):
