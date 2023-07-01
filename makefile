@@ -97,7 +97,8 @@ SRCIIO   = backflow qauto morsi cldmask remove_small_cc\
 PROGRAMS = $(addprefix bin/,$(SRCIIO))
 
 executables: $(PROGRAMS)
-
+# add -fopenmp to CFLAGS
+CFLAGS += -fopenmp
 
 # generic rule for building binary objects from C sources
 c/%.o : c/%.c
