@@ -699,13 +699,17 @@ def main(user_cfg, start_from=0, merge_matches=False):
 
             # heights-to-ply step:
             print('5d) merging height maps and computing point clouds...')
-            parallel.launch_calls(heights_to_ply, tiles, nb_workers,
+            # We use 20 x as many workers as for the other steps because this is
+            # step doesn't use many resources but takes very long.
+            parallel.launch_calls(heights_to_ply, tiles, 20*nb_workers,
                                   timeout=timeout)
         else:
             # triangulation step:
             print('5) triangulating tiles...')
             num_tiles = len(tiles)
-            tiles = parallel.launch_calls(disparity_to_ply, tiles, nb_workers,
+            # We use 20 x as many workers as for the other steps because this is
+            # step doesn't use many resources but takes very long.
+            tiles = parallel.launch_calls(disparity_to_ply, tiles, 20*nb_workers,
                                   timeout=timeout)
             tiles = [t for t in tiles if t is not None]
             if len(tiles) != num_tiles:
