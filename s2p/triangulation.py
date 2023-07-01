@@ -111,14 +111,15 @@ def disp_to_xyz(rpc1, rpc2, H1, H2, disp, mask_rect, img_bbx, mask_orig, A=None,
         err: array of shape (h, w) where each pixel contains the triangulation
             error
     """
-    # copy rpc coefficients to an RPCStruct object
+    # Start of the function
+    start_time = time.time()
+    print("Starting disp_to_xyz function...")
+
     rpc1_c_struct = RPCStruct(rpc1)
     rpc2_c_struct = RPCStruct(rpc2)
-
     if A is not None:  # apply pointing correction
         H2 = np.dot(H2, np.linalg.inv(A))
 
-    # define the argument types of the disp_to_lonlatalt function from disp_to_h.so
     h, w = disp.shape
     hh, ww = mask_orig.shape
     lib.disp_to_lonlatalt.argtypes = (ndpointer(dtype=c_double, shape=(h, w, 3)),
