@@ -16,7 +16,6 @@ from s2p import geographiclib
 from s2p import rpc_utils
 from s2p import masking
 from s2p import parallel
-from s2p.config import cfg
 
 # This function is here as a workaround to python bug #24313 When
 # using python3, json does not know how to serialize numpy.int64 on
@@ -92,13 +91,14 @@ def check_parameters(d):
 
     # warn about unknown parameters. The known parameters are those defined in
     # the global config.cfg dictionary, plus the mandatory 'images' and 'roi'
+    from s2p.config import cfg as orig_cfg
     for k in d.keys():
         if k not in ['images', 'roi', 'roi_geojson']:
-            if k not in cfg:
+            if k not in orig_cfg:
                 print('WARNING: ignoring unknown parameter {}.'.format(k))
 
 
-def build_cfg(user_cfg):
+def build_cfg(cfg, user_cfg):
     """
     Populate a dictionary containing the s2p parameters from a user config file.
 
@@ -143,9 +143,10 @@ def build_cfg(user_cfg):
 
     # get image ground sampling distance
     cfg['gsd'] = rpc_utils.gsd_from_rpc(cfg['images'][0]['rpcm'])
+    return cfg
 
 
-def make_dirs():
+def make_dirs(cfg):
     """
     Create directories needed to run s2p.
     """
@@ -161,7 +162,7 @@ def make_dirs():
         json.dump(cfg_copy, f, indent=2, default=workaround_json_int64)
 
 
-def adjust_tile_size():
+def adjust_tile_size(cfg):
     """
     Adjust the size of the tiles.
     """
@@ -221,7 +222,7 @@ def get_tile_dir(x, y, w, h):
                         'col_{:07d}_width_{}'.format(x, w))
 
 
-def create_tile(coords, neighborhood_coords_dict):
+def create_tile(cfg, coords, neighborhood_coords_dict):
     """
     Return a dictionary with the data of a tile.
 
@@ -311,7 +312,7 @@ def is_tile_all_nodata(path:str, window:rasterio.windows.Window):
             return False
 
 
-def is_this_tile_useful(x, y, w, h, images_sizes):
+def is_this_tile_useful(x, y, w, h, images, images_sizes, border_margin):
     """
     Check if a tile contains valid pixels.
 
@@ -326,32 +327,32 @@ def is_this_tile_useful(x, y, w, h, images_sizes):
         useful (bool): bool telling if the tile has to be processed
         mask (np.array): tile validity mask. Set to None if the tile is discarded
     """
-    if is_tile_all_nodata(cfg["images"][0]["img"], rasterio.windows.Window(x, y, w, h)):
+    if is_tile_all_nodata(images[0]["img"], rasterio.windows.Window(x, y, w, h)):
         return False, None
         
     # check if the tile is partly contained in at least one other image
     if w <= 0 or h <= 0:
         return False, None
 
-    rpc = cfg['images'][0]['rpcm']
-    for img, size in zip(cfg['images'][1:], images_sizes[1:]):
+    rpc = images[0]['rpcm']
+    for img, size in zip(images[1:], images_sizes[1:]):
         coords = rpc_utils.corresponding_roi(rpc, img['rpcm'], x, y, w, h)
         if rectangles_intersect(coords, (0, 0, size[1], size[0])):
             break  # the tile is partly contained
     else:  # we've reached the end of the loop hence the tile is not contained
         return False, None
 
-    roi_msk = cfg['images'][0]['roi']
-    cld_msk = cfg['images'][0]['cld']
-    wat_msk = cfg['images'][0]['wat']
+    roi_msk = images[0]['roi']
+    cld_msk = images[0]['cld']
+    wat_msk = images[0]['wat']
     mask = masking.image_tile_mask(x, y, w, h, roi_msk, cld_msk, wat_msk,
-                                   images_sizes[0], cfg['border_margin'])
+                                   images_sizes[0], border_margin=border_margin)
     if not mask.any():
         return False, None
     return True, mask
 
 
-def tiles_full_info(tw, th, tiles_txt, create_masks=False):
+def tiles_full_info(cfg, tw, th, tiles_txt, create_masks=False):
     """
     List the tiles to process and prepare their output directories structures.
 
@@ -362,10 +363,6 @@ def tiles_full_info(tw, th, tiles_txt, create_masks=False):
         a list of dictionaries. Each dictionary contains the image coordinates
         and the output directory path of a tile.
     """
-    rpc = cfg['images'][0]['rpcm']
-    roi_msk = cfg['images'][0]['roi']
-    cld_msk = cfg['images'][0]['cld']
-    wat_msk = cfg['images'][0]['wat']
     rx = cfg['roi']['x']
     ry = cfg['roi']['y']
     rw = cfg['roi']['w']
@@ -388,9 +385,12 @@ def tiles_full_info(tw, th, tiles_txt, create_masks=False):
         tiles_usefulnesses = parallel.launch_calls(is_this_tile_useful,
                                                    tiles_coords,
                                                    cfg['max_processes'],
+                                                   cfg['images'],
                                                    images_sizes,
+                                                   cfg['border_margin'],
                                                    tilewise=False,
-                                                   timeout=cfg['timeout'])
+                                                   timeout=cfg['timeout'],
+                                                   )
 
         # discard useless tiles from neighborhood_coords_dict
         discarded_tiles = set(x for x, (b, _) in zip(tiles_coords, tiles_usefulnesses) if not b)
@@ -403,7 +403,7 @@ def tiles_full_info(tw, th, tiles_txt, create_masks=False):
             if not useful:
                 continue
 
-            tile = create_tile(coords, neighborhood_coords_dict)
+            tile = create_tile(cfg, coords, neighborhood_coords_dict)
             tiles.append(tile)
 
             # make tiles directories and store json configuration dumps
@@ -430,7 +430,7 @@ def tiles_full_info(tw, th, tiles_txt, create_masks=False):
                                   mask.astype(np.uint8))
     else:
         if len(tiles_coords) == 1:
-            tiles.append(create_tile(tiles_coords[0], neighborhood_coords_dict))
+            tiles.append(cfg, tiles_coords[0], neighborhood_coords_dict)
         else:
             with open(tiles_txt, 'r') as f_tiles:
                 for config_json in f_tiles:
@@ -440,6 +440,6 @@ def tiles_full_info(tw, th, tiles_txt, create_masks=False):
                         tile_cfg = json.load(f_config)
                         roi = tile_cfg['roi']
                         coords = roi['x'], roi['y'], roi['w'], roi['h']
-                        tiles.append(create_tile(coords, neighborhood_coords_dict))
+                        tiles.append(create_tile(cfg, coords, neighborhood_coords_dict))
 
     return tiles
