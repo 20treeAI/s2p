@@ -20,6 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import subprocess
 import sys
+import copy
 import os.path
 import json
 import datetime
@@ -45,6 +46,7 @@ from s2p import ply
 from s2p import triangulation
 from s2p import fusion
 from s2p import visualisation
+from s2p import config
 from s2p.image_coordinates_to_coordinates import matches_to_geojson
 
 
@@ -603,9 +605,8 @@ def main(user_cfg, start_from=0, merge_matches=False):
         user_cfg: user config dictionary
         start_from: the step to start from (default: 0)
     """
-    from s2p.config import cfg
     common.print_elapsed_time.t0 = datetime.datetime.now()
-    cfg = initialization.build_cfg(cfg, user_cfg)
+    cfg = initialization.build_cfg(copy.deepcopy(config.cfg), user_cfg)
     initialization.make_dirs(cfg)
 
     # multiprocessing setup
