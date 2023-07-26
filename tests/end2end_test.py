@@ -5,9 +5,9 @@
 import os
 import sys
 import glob
+import rasterio
 import numpy as np
 from plyflatten import plyflatten_from_plyfiles_list
-import pytest
 
 import s2p
 from s2p import common
@@ -61,6 +61,9 @@ def end2end(config_file, ref_dsm, absmean_tol=0.025, percentile_tol=1.):
 
     outdir = test_cfg['out_dir']
 
+    out_dsm = os.path.join(outdir, 'dsm.tif')
+    assert os.path.exists(out_dsm)
+    assert rasterio.open(out_dsm).crs == rasterio.open(ref_dsm).crs
     computed = common.rio_read_as_array_with_nans(os.path.join(outdir, 'dsm.tif'))
     expected = common.rio_read_as_array_with_nans(ref_dsm)
 
