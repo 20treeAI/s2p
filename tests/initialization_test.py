@@ -112,7 +112,7 @@ def test_rpc_dict(data, mocks):
 def test_roi_geojson(data):
     tmp_config, _, _, _ = data
     from s2p.config import cfg
-    user_cfg = s2p.read_config_file(cfg, tmp_config)
+    user_cfg = s2p.read_config_file(tmp_config)
 
     user_cfg["roi_geojson"] = {
       "coordinates" : [
