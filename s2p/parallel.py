@@ -7,7 +7,6 @@ import traceback
 import multiprocessing
 
 from s2p import common
-from s2p.config import cfg
 
 
 def show_progress(a):
@@ -31,10 +30,10 @@ def show_progress(a):
     sys.stdout.flush()
 
 
-def tilewise_wrapper(fun, *args, **kwargs):
+def tilewise_wrapper(fun, debug, *args, **kwargs):
     """
     """
-    if not cfg['debug']:  # redirect stdout and stderr to log file
+    if not debug:  # redirect stdout and stderr to log file
         f = open(kwargs['stdout'], 'a')
         sys.stdout = f
         sys.stderr = f
@@ -47,7 +46,7 @@ def tilewise_wrapper(fun, *args, **kwargs):
         raise
 
     common.garbage_cleanup()
-    if not cfg['debug']:  # close logs
+    if not debug:  # close logs
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
         f.close()
@@ -56,7 +55,7 @@ def tilewise_wrapper(fun, *args, **kwargs):
 
 
 def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
-                 timeout=600):
+                 timeout=600, debug=False):
     """
     Run a function several times in parallel with different given inputs.
 
@@ -90,7 +89,7 @@ def launch_calls(fun, list_of_args, nb_workers, *extra_args, tilewise=True,
                 log = os.path.join(x[0]['dir'], 'pair_%d' % x[1], 'stdout.log')
             else:  # we expect x = tile_dictionary
                 log = os.path.join(x['dir'], 'stdout.log')
-            args = (fun,) + args
+            args = (fun, debug) + args
             results.append(pool.apply_async(tilewise_wrapper, args=args,
                                             kwds={'stdout': log},
                                             callback=show_progress))
