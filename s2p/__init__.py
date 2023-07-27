@@ -584,7 +584,7 @@ def global_dsm(cfg, tiles):
         rasterio.merge.merge(dsms,
                              bounds=bounds,
                              res=cfg["dsm_resolution"],
-                             nodata=np.nan,
+                             nodata=-9999,
                              indexes=[1],
                              dst_path=os.path.join(cfg["out_dir"], "dsm.tif"),
                              dst_kwds=creation_options)
