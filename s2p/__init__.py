@@ -536,7 +536,7 @@ def plys_to_dsm(tile, cfg):
                                                     roi=roi,
                                                     radius=cfg['dsm_radius'],
                                                     sigma=cfg['dsm_sigma'])
-    raster = np.nan_to_num(-9999.)
+    raster = np.nan_to_num(raster, -9999.)
     profile.update(nodata=-9999.)
 
     # save output image with utm georeferencing
