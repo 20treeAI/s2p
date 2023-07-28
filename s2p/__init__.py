@@ -536,6 +536,9 @@ def plys_to_dsm(tile, cfg):
                                                     roi=roi,
                                                     radius=cfg['dsm_radius'],
                                                     sigma=cfg['dsm_sigma'])
+    raster = np.nan_to_num(raster, -9999.)
+    raster[raster == 0] = -9999.
+    profile.update(nodata=-9999.)
 
     # save output image with utm georeferencing
     common.rasterio_write(out_dsm, raster[:, :, 0], profile=profile)
@@ -582,7 +585,7 @@ def global_dsm(cfg, tiles):
         rasterio.merge.merge(dsms,
                              bounds=bounds,
                              res=cfg["dsm_resolution"],
-                             nodata=np.nan,
+                             nodata=-9999,
                              indexes=[1],
                              dst_path=os.path.join(cfg["out_dir"], "dsm.tif"),
                              dst_kwds=creation_options)
