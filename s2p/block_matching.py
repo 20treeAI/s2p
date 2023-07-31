@@ -8,6 +8,7 @@ import numpy as np
 import rasterio
 
 from s2p import common
+from s2p.hmsmnet import HMSMNet
 from s2p.config import cfg
 
 
@@ -86,6 +87,13 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
     # define environment variables
     env = os.environ.copy()
     env['OMP_NUM_THREADS'] = str(cfg['omp_num_threads'])
+
+    if algo == 'hmsmnet':
+        model = HMSMNet(1024, 1024, 1, -128, 64)
+        model.build_model()
+        model.load_weights("s2p/HMSM-Net.h5")
+        model.predict(im1, im2, disp)
+        create_rejection_mask(disp, im1, im2, mask)
 
     # call the block_matching binary
     if algo == 'hirschmuller02':

@@ -1,20 +1,21 @@
 {
-  "out_dir" : "../../testoutput/output_triplet",
+  "out_dir" : "testoutput/output_triplet_hmsmnet",
   "images" : [
-    {"img" : "img_02.tif"},
     {"img" : "img_01.tif"},
     {"img" : "img_03.tif"}
     ],
   "roi" : {
       "x" : 150,
       "y" : 150,
-      "w" : 700,
-      "h" : 700
+      "w" : 1024,
+      "h" : 1024
   },
   "horizontal_margin": 20,
   "vertical_margin": 5,
-  "tile_size" : 300,
+  "tile_size" : 1024,
   "disp_range_method" : "sift",
   "msk_erosion": 0,
-  "dsm_resolution": 0.5
+  "dsm_resolution": 0.5,
+  "matching_algorithm": "hmsmnet",
+  "debug": true
 }
