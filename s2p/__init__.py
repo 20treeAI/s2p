@@ -733,7 +733,7 @@ def main(user_cfg, start_from=0, merge_matches=False):
     common.print_elapsed_time()
 
     # cleanup
-    common.garbage_cleanup(cfg['clean_temp'])
+    common.garbage_cleanup(cfg['clean_tmp'])
     common.print_elapsed_time(since_first_call=True)
 
 

@@ -36,11 +36,11 @@ def remove(target):
     except OSError:
         pass
 
-def garbage_cleanup(clean_temp=True):
+def garbage_cleanup(clean_tmp=True):
     """
     Removes all the files listed in the global variable 'garbage'.
     """
-    if clean_temp:
+    if clean_tmp:
         while garbage:
             remove(garbage.pop())
 
