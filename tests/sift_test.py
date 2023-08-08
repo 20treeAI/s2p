@@ -7,6 +7,7 @@ import rpcm
 
 from s2p import sift
 from tests_utils import data_path
+from s2p.config import cfg
 
 
 def test_image_keypoints():
@@ -43,7 +44,7 @@ def test_matches_on_rpc_roi():
     rpc2 = rpcm.rpc_from_geotiff(img2)
     computed = sift.matches_on_rpc_roi(
         img1, img2, rpc1, rpc2, 100, 100, 200, 200,
-        method='relative', sift_thresh=0.6, epipolar_threshold=10
+        method='relative', sift_thresh=0.6, epipolar_threshold=10, cfg=cfg
     )
     expected = np.loadtxt(data_path('expected_output/units/matches_on_rpc_roi.txt'))
     np.testing.assert_allclose(computed, expected, rtol=0.01, atol=0.1,
