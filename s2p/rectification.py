@@ -238,7 +238,7 @@ def disparity_range(rpc1, rpc2, x, y, w, h, H1, H2, matches, cfg, A=None):
     return disp
 
 
-def rectification_homographies(matches, x, y, w, h):
+def rectification_homographies(matches, x, y, w, h, debug=False):
     """
     Computes rectifying homographies from point matches for a given ROI.
 
@@ -261,7 +261,7 @@ def rectification_homographies(matches, x, y, w, h):
     F = estimation.affine_fundamental_matrix(matches)
 
     # compute rectifying similarities
-    S1, S2 = estimation.rectifying_similarities_from_affine_fundamental_matrix(F, cfg['debug'])
+    S1, S2 = estimation.rectifying_similarities_from_affine_fundamental_matrix(F, debug)
 
     if cfg['debug']:
         y1 = common.points_apply_homography(S1, matches[:, :2])[:, 1]
@@ -306,7 +306,7 @@ def rectify_pair(im1, im2, rpc1, rpc2, x, y, w, h, out1, out2, cfg, A=None, sift
     # compute real or virtual matches
     if method == 'rpc':
         # find virtual matches from RPC camera models
-        matches = rpc_utils.matches_from_rpc(rpc1, rpc2, x, y, w, h, cfg)
+        matches = rpc_utils.matches_from_rpc(rpc1, rpc2, x, y, w, h, cfg['n_gcp_per_axis'], cfg)
 
         # correct second image coordinates with the pointing correction matrix
         if A is not None:
@@ -331,7 +331,7 @@ def rectify_pair(im1, im2, rpc1, rpc2, x, y, w, h, out1, out2, cfg, A=None, sift
                                                             matches[:, 2:])
 
     # compute rectifying homographies
-    H1, H2, F = rectification_homographies(matches, x, y, w, h)
+    H1, H2, F = rectification_homographies(matches, x, y, w, h, debug=cfg['debug'])
 
     if cfg['register_with_shear']:
         # compose H2 with a horizontal shear to reduce the disparity range
