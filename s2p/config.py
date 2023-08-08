@@ -126,7 +126,7 @@ cfg['disp_range_exogenous_high_margin'] = +100
 #     correct place in the input images)
 #   - a reasonable altitude range (to get a better rectification when
 #     "rectification_method" is set to "rpc")
-cfg['use_srtm'] = True
+cfg['use_srtm'] = False
 
 # exogenous dem. If set, it superseeds SRTM.
 cfg['exogenous_dem'] = None
