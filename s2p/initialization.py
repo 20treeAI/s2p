@@ -312,7 +312,7 @@ def is_tile_all_nodata(path:str, window:rasterio.windows.Window):
             return False
 
 
-def is_this_tile_useful(x, y, w, h, images, images_sizes, border_margin):
+def is_this_tile_useful(x, y, w, h, images, images_sizes, border_margin, temporary_dir=None):
     """
     Check if a tile contains valid pixels.
 
@@ -346,7 +346,7 @@ def is_this_tile_useful(x, y, w, h, images, images_sizes, border_margin):
     cld_msk = images[0]['cld']
     wat_msk = images[0]['wat']
     mask = masking.image_tile_mask(x, y, w, h, roi_msk, cld_msk, wat_msk,
-                                   images_sizes[0], border_margin=border_margin)
+                                   images_sizes[0], border_margin=border_margin, temporary_directory=temporary_dir)
     if not mask.any():
         return False, None
     return True, mask
@@ -388,6 +388,7 @@ def tiles_full_info(cfg, tw, th, tiles_txt, create_masks=False):
                                                    cfg['images'],
                                                    images_sizes,
                                                    cfg['border_margin'],
+                                                   cfg['temporary_dir'],
                                                    tilewise=False,
                                                    timeout=cfg['timeout'],
                                                    )
