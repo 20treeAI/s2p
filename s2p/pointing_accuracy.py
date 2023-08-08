@@ -10,7 +10,6 @@ import numpy as np
 from s2p import sift
 from s2p import rpc_utils
 from s2p import estimation
-from s2p.config import cfg
 
 
 def error_vectors(m, F, ind='ref'):
@@ -60,7 +59,7 @@ def error_vectors(m, F, ind='ref'):
     return np.vstack((np.multiply(a, l[:, 0]), np.multiply(a, l[:, 1]))).T
 
 
-def local_translation(r1, r2, x, y, w, h, m):
+def local_translation(r1, r2, x, y, w, h, m, n_gcp_per_axis=5):
     """
     Estimates the optimal translation to minimise the relative pointing error
     on a given tile.
@@ -79,7 +78,7 @@ def local_translation(r1, r2, x, y, w, h, m):
         order to correct the pointing error.
     """
     # estimate the affine fundamental matrix between the two views
-    n = cfg['n_gcp_per_axis']
+    n = n_gcp_per_axis
     rpc_matches = rpc_utils.matches_from_rpc(r1, r2, x, y, w, h, n)
     F = estimation.affine_fundamental_matrix(rpc_matches)
 
@@ -101,7 +100,7 @@ def local_translation(r1, r2, x, y, w, h, m):
 
 def compute_correction(img1, img2, rpc1, rpc2, x, y, w, h,
                        method, sift_thresh, epipolar_threshold,
-                       matching_method, min_value, max_value, confidence_threshold):
+                       matching_method, min_value, max_value, confidence_threshold, n_gcp_per_axis=5):
     """
     Computes pointing correction matrix for specific ROI
 
@@ -130,7 +129,7 @@ def compute_correction(img1, img2, rpc1, rpc2, x, y, w, h,
                                 matching_method, min_value, max_value, confidence_threshold)
 
     if m is not None:
-        A = local_translation(rpc1, rpc2, x, y, w, h, m)
+        A = local_translation(rpc1, rpc2, x, y, w, h, m, n_gcp_per_axis=n_gcp_per_axis)
     else:
         A = None
 

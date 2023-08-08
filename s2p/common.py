@@ -15,8 +15,6 @@ import numpy as np
 import rasterio
 
 
-from s2p.config import cfg
-
 
 # silent rasterio NotGeoreferencedWarning
 warnings.filterwarnings("ignore",
@@ -38,18 +36,18 @@ def remove(target):
     except OSError:
         pass
 
-def garbage_cleanup():
+def garbage_cleanup(clean_temp=True):
     """
     Removes all the files listed in the global variable 'garbage'.
     """
-    if cfg['clean_tmp']:
+    if clean_temp:
         while garbage:
             remove(garbage.pop())
 
 
-def tmpfile(ext=''):
+def tmpfile(temporary_dir, ext=''):
     """
-    Creates a temporary file in the cfg['temporary_dir'] directory.
+    Creates a temporary file in the temporary_dir directory.
 
     Args:
         ext: desired file extension. The dot has to be included.
@@ -61,7 +59,7 @@ def tmpfile(ext=''):
     at the end of the pipeline.
     """
     fd, out = tempfile.mkstemp(suffix=ext, prefix='s2p_',
-                               dir=os.path.expandvars(cfg['temporary_dir']))
+                               dir=os.path.expandvars(temporary_dir))
     os.close(fd)           # http://www.logilab.org/blogentry/17873
     garbage.append(out)
     return out
