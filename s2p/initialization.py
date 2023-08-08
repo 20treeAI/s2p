@@ -312,7 +312,7 @@ def is_tile_all_nodata(path:str, window:rasterio.windows.Window):
             return False
 
 
-def is_this_tile_useful(x, y, w, h, images, images_sizes, border_margin, temporary_dir=None):
+def is_this_tile_useful(x, y, w, h, images, images_sizes, border_margin, cfg):
     """
     Check if a tile contains valid pixels.
 
@@ -336,7 +336,7 @@ def is_this_tile_useful(x, y, w, h, images, images_sizes, border_margin, tempora
 
     rpc = images[0]['rpcm']
     for img, size in zip(images[1:], images_sizes[1:]):
-        coords = rpc_utils.corresponding_roi(rpc, img['rpcm'], x, y, w, h)
+        coords = rpc_utils.corresponding_roi(rpc, img['rpcm'], x, y, w, h, cfg)
         if rectangles_intersect(coords, (0, 0, size[1], size[0])):
             break  # the tile is partly contained
     else:  # we've reached the end of the loop hence the tile is not contained
@@ -346,7 +346,7 @@ def is_this_tile_useful(x, y, w, h, images, images_sizes, border_margin, tempora
     cld_msk = images[0]['cld']
     wat_msk = images[0]['wat']
     mask = masking.image_tile_mask(x, y, w, h, roi_msk, cld_msk, wat_msk,
-                                   images_sizes[0], border_margin=border_margin, temporary_directory=temporary_dir)
+                                   images_sizes[0], border_margin=border_margin, temporary_dir=cfg['temporary_dir'])
     if not mask.any():
         return False, None
     return True, mask
@@ -388,7 +388,7 @@ def tiles_full_info(cfg, tw, th, tiles_txt, create_masks=False):
                                                    cfg['images'],
                                                    images_sizes,
                                                    cfg['border_margin'],
-                                                   cfg['temporary_dir'],
+                                                   cfg,
                                                    tilewise=False,
                                                    timeout=cfg['timeout'],
                                                    )

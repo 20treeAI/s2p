@@ -318,7 +318,7 @@ def ground_control_points(rpc, x, y, w, h, m, M, n):
     return lon, lat, alt
 
 
-def corresponding_roi(rpc1, rpc2, x, y, w, h):
+def corresponding_roi(rpc1, rpc2, x, y, w, h, cfg):
     """
     Uses RPC functions to determine the region of im2 associated to the
     specified ROI of im1.
@@ -355,7 +355,7 @@ def corresponding_roi(rpc1, rpc2, x, y, w, h):
     return np.round(out)
 
 
-def matches_from_rpc(rpc1, rpc2, x, y, w, h, n):
+def matches_from_rpc(rpc1, rpc2, x, y, w, h, n, cfg):
     """
     Uses RPC functions to generate matches between two Pleiades images.
 

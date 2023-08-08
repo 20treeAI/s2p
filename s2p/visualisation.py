@@ -107,7 +107,7 @@ def plot_matches_low_level(crop1, crop2, matches, outfile, max_matches=100):
     common.rasterio_write(outfile, out)
 
 
-def plot_matches(img1, img2, rpc1, rpc2, matches, outfile, x, y, w, h):
+def plot_matches(img1, img2, rpc1, rpc2, matches, outfile, x, y, w, h, cfg):
     """
     Plot keypoint matches on images corresponding ROIs.
 
@@ -129,7 +129,7 @@ def plot_matches(img1, img2, rpc1, rpc2, matches, outfile, x, y, w, h):
         return
 
     x1, y1, w1, h1 = x, y, w, h
-    x2, y2, w2, h2 = map(int, rpc_utils.corresponding_roi(rpc1, rpc2, x1, y1, w1, h1))
+    x2, y2, w2, h2 = map(int, rpc_utils.corresponding_roi(rpc1, rpc2, x1, y1, w1, h1, cfg))
 
     # read the crops
     with rasterio.open(img1, "r") as f:

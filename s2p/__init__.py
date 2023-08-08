@@ -129,7 +129,7 @@ def pointing_correction(tile, i, cfg):
     A, m = pointing_accuracy.compute_correction(
         img1, img2, rpc1, rpc2, x, y, w, h, method,
         cfg['sift_match_thresh'], cfg['max_pointing_error'], cfg['matching_method'],
-        cfg['min_value'], cfg['max_value'], cfg['confidence_threshold'], cfg['n_gcp_per_axis']
+        cfg['min_value'], cfg['max_value'], cfg['confidence_threshold'], cfg
     )
 
     if A is not None:  # A is the correction matrix
@@ -142,7 +142,7 @@ def pointing_correction(tile, i, cfg):
             visualisation.plot_matches(img1, img2, rpc1, rpc2, m,
                                        os.path.join(out_dir,
                                                     'sift_matches_pointing.png'),
-                                       x, y, w, h)
+                                       x, y, w, h, cfg)
 
 
 def global_pointing_correction(cfg, tiles):
