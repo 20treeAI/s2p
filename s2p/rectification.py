@@ -263,7 +263,7 @@ def rectification_homographies(matches, x, y, w, h, debug=False):
     # compute rectifying similarities
     S1, S2 = estimation.rectifying_similarities_from_affine_fundamental_matrix(F, debug)
 
-    if cfg['debug']:
+    if debug:
         y1 = common.points_apply_homography(S1, matches[:, :2])[:, 1]
         y2 = common.points_apply_homography(S2, matches[:, 2:])[:, 1]
         err = np.abs(y1 - y2)
