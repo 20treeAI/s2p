@@ -100,12 +100,10 @@ def check_parameters(d):
 
 def build_cfg(cfg, user_cfg):
     """
-    Populate a dictionary containing the s2p parameters from a user config file.
-
-    This dictionary is contained in the global variable 'cfg' of the config
-    module.
+    Populate a default cfg dictionary with the s2p parameters from a user config file.
 
     Args:
+        cfg: default config dictionary
         user_cfg: user config dictionary
     """
     # check that all the mandatory arguments are defined
