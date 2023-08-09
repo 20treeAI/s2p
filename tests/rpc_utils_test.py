@@ -7,6 +7,7 @@ import pytest
 
 from s2p import rpc_utils
 from tests_utils import data_path
+from s2p.config import cfg
 
 
 def test_matches_from_rpc():
@@ -16,7 +17,7 @@ def test_matches_from_rpc():
     r1 = rpcm.rpc_from_geotiff(data_path(os.path.join('input_pair', 'img_01.tif')))
     r2 = rpcm.rpc_from_geotiff(data_path(os.path.join('input_pair', 'img_02.tif')))
 
-    test_matches = rpc_utils.matches_from_rpc(r1, r2, 100, 100, 200, 200, 5)
+    test_matches = rpc_utils.matches_from_rpc(r1, r2, 100, 100, 200, 200, 5, cfg)
     expected_matches = np.loadtxt(data_path(os.path.join('expected_output',
                                                          'units',
                                                          'unit_matches_from_rpc.txt')))

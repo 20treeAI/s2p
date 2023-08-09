@@ -129,7 +129,7 @@ def pointing_correction(tile, i, cfg):
     A, m = pointing_accuracy.compute_correction(
         img1, img2, rpc1, rpc2, x, y, w, h, method,
         cfg['sift_match_thresh'], cfg['max_pointing_error'], cfg['matching_method'],
-        cfg['min_value'], cfg['max_value'], cfg['confidence_threshold']
+        cfg['min_value'], cfg['max_value'], cfg['confidence_threshold'], cfg
     )
 
     if A is not None:  # A is the correction matrix
@@ -142,7 +142,7 @@ def pointing_correction(tile, i, cfg):
             visualisation.plot_matches(img1, img2, rpc1, rpc2, m,
                                        os.path.join(out_dir,
                                                     'sift_matches_pointing.png'),
-                                       x, y, w, h)
+                                       x, y, w, h, cfg)
 
 
 def global_pointing_correction(cfg, tiles):
@@ -212,10 +212,14 @@ def rectification_pair(tile, i, cfg):
     H1, H2, disp_min, disp_max = rectification.rectify_pair(img1, img2,
                                                             rpc1, rpc2,
                                                             x, y, w, h,
-                                                            rect1, rect2, A, m,
+                                                            rect1, rect2, 
+                                                            cfg,
+                                                            A=A, 
+                                                            sift_matches=m,
                                                             method=cfg['rectification_method'],
                                                             hmargin=cfg['horizontal_margin'],
-                                                            vmargin=cfg['vertical_margin'])
+                                                            vmargin=cfg['vertical_margin'],
+                                                            )
 
     np.savetxt(os.path.join(out_dir, 'H_ref.txt'), H1, fmt='%12.6f')
     np.savetxt(os.path.join(out_dir, 'H_sec.txt'), H2, fmt='%12.6f')
@@ -246,7 +250,7 @@ def stereo_matching(tile, i, cfg):
     disp_min, disp_max = np.loadtxt(os.path.join(out_dir, 'disp_min_max.txt'))
 
     block_matching.compute_disparity_map(rect1, rect2, disp, mask,
-                                         cfg['matching_algorithm'], disp_min,
+                                         cfg['matching_algorithm'], cfg, disp_min,
                                          disp_max, timeout=cfg['mgm_timeout'],
                                          max_disp_range=cfg['max_disp_range'])
 
@@ -335,7 +339,7 @@ def disparity_to_ply(tile, cfg):
         with rasterio.open(os.path.join(out_dir, 'pair_1', 'rectified_ref.tif')) as f:
             ww, hh = f.width, f.height
 
-        colors = common.tmpfile(".tif")
+        colors = common.tmpfile(cfg['temporary_dir'], ".tif")
         success_state = common.image_apply_homography(colors, cfg['images'][0]['clr'],
                                       np.loadtxt(H_ref), ww, hh)
         if success_state is False:
@@ -450,7 +454,7 @@ def heights_fusion(cfg, tile):
     # merge the height maps (applying mean offset to register)
     fusion.merge_n(os.path.join(tile_dir, 'height_map.tif'), height_maps,
                    global_mean_heights, averaging=cfg['fusion_operator'],
-                   threshold=cfg['fusion_thresh'])
+                   threshold=cfg['fusion_thresh'], debug=cfg['debug'])
 
     if cfg['clean_intermediate']:
         for f in height_maps:
@@ -729,7 +733,7 @@ def main(user_cfg, start_from=0, merge_matches=False):
     common.print_elapsed_time()
 
     # cleanup
-    common.garbage_cleanup()
+    common.garbage_cleanup(cfg['clean_tmp'])
     common.print_elapsed_time(since_first_call=True)
 
 

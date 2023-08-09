@@ -8,14 +8,13 @@ import numpy as np
 import rasterio
 
 from s2p import common
-from s2p.config import cfg
 
 
 class MaxDisparityRangeError(Exception):
     pass
 
 
-def create_rejection_mask(disp, im1, im2, mask):
+def create_rejection_mask(disp, im1, im2, mask, temporary_dir):
     """
     Create rejection mask (0 means rejected, 1 means accepted)
     Keep only the points that are matched and present in both input images
@@ -25,14 +24,14 @@ def create_rejection_mask(disp, im1, im2, mask):
         im1, im2: rectified stereo pair
         mask: path to the output rejection mask
     """
-    tmp1 = common.tmpfile('.tif')
-    tmp2 = common.tmpfile('.tif')
+    tmp1 = common.tmpfile(temporary_dir, '.tif')
+    tmp2 = common.tmpfile(temporary_dir, '.tif')
     common.run(["plambda", disp, "x 0 join", "-o", tmp1])
     common.run(["backflow", tmp1, im2, tmp2])
     common.run(["plambda", disp, im1, tmp2, "x isfinite y isfinite z isfinite and and vmul", "-o", mask])
 
 
-def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
+def compute_disparity_map(im1, im2, disp, mask, algo, cfg, disp_min=None,
                           disp_max=None, timeout=600, max_disp_range=None,
                           extra_params=''):
     """
@@ -124,14 +123,14 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
 
         win = 3  # matched block size. It must be a positive odd number
         lr = 1  # maximum difference allowed in the left-right disparity check
-        cost = common.tmpfile('.tif')
+        cost = common.tmpfile(cfg['temporary_dir'], '.tif')
         common.run('sgbm {} {} {} {} {} {} {} {} {} {}'.format(im1, im2,
                                                                disp, cost,
                                                                disp_min,
                                                                disp_max,
                                                                win, p1, p2, lr))
 
-        create_rejection_mask(disp, im1, im2, mask)
+        create_rejection_mask(disp, im1, im2, mask, cfg['temporary_dir'])
 
     if algo == 'tvl1':
         tvl1 = 'callTVL1.sh'
@@ -185,14 +184,14 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
             timeout=timeout,
         )
 
-        create_rejection_mask(disp, im1, im2, mask)
+        create_rejection_mask(disp, im1, im2, mask, cfg['temporary_dir'])
 
 
     if algo == 'mgm_multi_lsd':
         ref = im1
         sec = im2
-        wref = common.tmpfile('.tif')
-        wsec = common.tmpfile('.tif')
+        wref = common.tmpfile(cfg['temporary_dir'], '.tif')
+        wsec = common.tmpfile(cfg['temporary_dir'], '.tif')
         # TODO TUNE LSD PARAMETERS TO HANDLE DIRECTLY 12 bits images?
         # image dependent weights based on lsd segments
         with rasterio.open(ref, "r") as f:
@@ -263,7 +262,7 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
             timeout=timeout,
         )
 
-        create_rejection_mask(disp, im1, im2, mask)
+        create_rejection_mask(disp, im1, im2, mask, cfg['temporary_dir'])
 
 
     if algo == 'mgm_multi':
@@ -307,7 +306,7 @@ def compute_disparity_map(im1, im2, disp, mask, algo, disp_min=None,
             timeout=timeout,
         )
 
-        create_rejection_mask(disp, im1, im2, mask)
+        create_rejection_mask(disp, im1, im2, mask, cfg['temporary_dir'])
 
     if (algo == 'micmac'):
         # add micmac binaries to the PATH environment variable

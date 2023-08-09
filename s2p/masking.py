@@ -16,7 +16,7 @@ warnings.filterwarnings("ignore",
 
 
 def image_tile_mask(x, y, w, h, roi_gml=None, cld_gml=None, raster_mask=None,
-                    img_shape=None, border_margin=10):
+                    img_shape=None, border_margin=10, temporary_dir=None):
     """
     Compute a validity mask for an image tile from vector/raster image masks.
 
@@ -44,7 +44,7 @@ def image_tile_mask(x, y, w, h, roi_gml=None, cld_gml=None, raster_mask=None,
     mask = np.ones((h, w), dtype=bool)
 
     if roi_gml is not None:  # image domain mask (polygons)
-        tmp = common.tmpfile('.png')
+        tmp = common.tmpfile(temporary_dir, '.png')
         subprocess.check_call('cldmask %d %d -h "%s" %s %s' % (w, h, hij,
                                                                roi_gml, tmp),
                               shell=True)
@@ -55,7 +55,7 @@ def image_tile_mask(x, y, w, h, roi_gml=None, cld_gml=None, raster_mask=None,
             return mask
 
     if cld_gml is not None:  # cloud mask (polygons)
-        tmp = common.tmpfile('.png')
+        tmp = common.tmpfile(temporary_dir, '.png')
         subprocess.check_call('cldmask %d %d -h "%s" %s %s' % (w, h, hij,
                                                                cld_gml, tmp),
                               shell=True)

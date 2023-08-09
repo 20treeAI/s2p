@@ -12,7 +12,6 @@ import srtm4
 
 from s2p import geographiclib
 from s2p import common
-from s2p.config import cfg
 
 warnings.filterwarnings("ignore", category=rasterio.errors.NotGeoreferencedWarning)
 
@@ -89,7 +88,7 @@ def altitude_range_coarse(rpc, scale_factor=1):
     return m, M
 
 
-def min_max_heights_from_bbx(im, lon_m, lon_M, lat_m, lat_M, rpc):
+def min_max_heights_from_bbx(im, lon_m, lon_M, lat_m, lat_M, rpc, exogenous_dem_geoid_mode=True, rpc_alt_range_scale_factor=1):
     """
     Compute min, max heights from bounding box
 
@@ -139,7 +138,7 @@ def min_max_heights_from_bbx(im, lon_m, lon_M, lat_m, lat_M, rpc):
         hmin = np.nanmin(array)
         hmax = np.nanmax(array)
 
-        if cfg['exogenous_dem_geoid_mode'] is True:
+        if exogenous_dem_geoid_mode is True:
             offset = geographiclib.geoid_to_ellipsoid((lat_m + lat_M)/2, (lon_m + lon_M)/2, 0)
             hmin += offset
             hmax += offset
@@ -147,10 +146,10 @@ def min_max_heights_from_bbx(im, lon_m, lon_M, lat_m, lat_M, rpc):
     else:
         print("WARNING: rpc_utils.min_max_heights_from_bbx: access window out of range")
         print("returning coarse range from rpc")
-        return altitude_range_coarse(rpc, cfg['rpc_alt_range_scale_factor'])
+        return altitude_range_coarse(rpc, rpc_alt_range_scale_factor)
 
 
-def altitude_range(rpc, x, y, w, h, margin_top=0, margin_bottom=0):
+def altitude_range(rpc, x, y, w, h, cfg, margin_top=0, margin_bottom=0):
     """
     Computes an altitude range using the exogenous dem.
 
@@ -180,7 +179,8 @@ def altitude_range(rpc, x, y, w, h, margin_top=0, margin_bottom=0):
     # compute heights on this bounding box
     if cfg['exogenous_dem'] is not None:
         h_m, h_M = min_max_heights_from_bbx(cfg['exogenous_dem'],
-                                            lon_m, lon_M, lat_m, lat_M, rpc)
+                                            lon_m, lon_M, lat_m, lat_M, rpc, 
+                                            cfg['exogenous_dem_geoid_mode'], cfg['rpc_alt_range_scale_factor'])
         h_m += margin_bottom
         h_M += margin_top
     elif cfg['use_srtm']:
@@ -192,6 +192,8 @@ def altitude_range(rpc, x, y, w, h, margin_top=0, margin_bottom=0):
         h_m = min(alts) + margin_bottom
         h_M = max(alts) + margin_top
     else:
+        print(f"WARNING: Using coarse altitude range because use_srtm=False and no exogenous DEM is provided")
+        print(f"This may lead to poor results")
         h_m, h_M = altitude_range_coarse(rpc, cfg['rpc_alt_range_scale_factor'])
 
     return h_m, h_M
@@ -316,7 +318,7 @@ def ground_control_points(rpc, x, y, w, h, m, M, n):
     return lon, lat, alt
 
 
-def corresponding_roi(rpc1, rpc2, x, y, w, h):
+def corresponding_roi(rpc1, rpc2, x, y, w, h, cfg):
     """
     Uses RPC functions to determine the region of im2 associated to the
     specified ROI of im1.
@@ -338,7 +340,7 @@ def corresponding_roi(rpc1, rpc2, x, y, w, h):
         rpc1 = rpcm.RPCModel(rpc1)
     if not isinstance(rpc2, rpcm.RPCModel):
         rpc2 = rpcm.RPCModel(rpc2)
-    m, M = altitude_range(rpc1, x, y, w, h, 0, 0)
+    m, M = altitude_range(rpc1, x, y, w, h, cfg, 0, 0)
 
     # build an array with vertices of the 3D ROI, obtained as {2D ROI} x [m, M]
     a = np.array([x, x,   x,   x, x+w, x+w, x+w, x+w])
@@ -353,7 +355,7 @@ def corresponding_roi(rpc1, rpc2, x, y, w, h):
     return np.round(out)
 
 
-def matches_from_rpc(rpc1, rpc2, x, y, w, h, n):
+def matches_from_rpc(rpc1, rpc2, x, y, w, h, n, cfg):
     """
     Uses RPC functions to generate matches between two Pleiades images.
 
@@ -368,7 +370,7 @@ def matches_from_rpc(rpc1, rpc2, x, y, w, h, n):
     Returns:
         an array of matches, one per line, expressed as x1, y1, x2, y2.
     """
-    m, M = altitude_range(rpc1, x, y, w, h, 100, -100)
+    m, M = altitude_range(rpc1, x, y, w, h, cfg, 100, -100)
     lon, lat, alt = ground_control_points(rpc1, x, y, w, h, m, M, n)
     x1, y1 = rpc1.projection(lon, lat, alt)
     x2, y2 = rpc2.projection(lon, lat, alt)
@@ -411,7 +413,7 @@ def alt_to_disp(rpc1, rpc2, x, y, alt, H1, H2, A=None):
     return disp
 
 
-def exogenous_disp_range_estimation(rpc1, rpc2, x, y, w, h, H1, H2, A=None,
+def exogenous_disp_range_estimation(rpc1, rpc2, x, y, w, h, H1, H2, cfg, A=None,
                                     margin_top=0, margin_bottom=0):
     """
     Args:
@@ -436,7 +438,7 @@ def exogenous_disp_range_estimation(rpc1, rpc2, x, y, w, h, H1, H2, A=None,
     if cfg['exogenous_dem'] is None:
         return
 
-    m, M = altitude_range(rpc1, x, y, w, h, margin_top, margin_bottom)
+    m, M = altitude_range(rpc1, x, y, w, h, cfg, margin_top, margin_bottom)
 
     return altitude_range_to_disp_range(m, M, rpc1, rpc2, x, y, w, h, H1, H2,
                                         A, margin_top, margin_bottom)
