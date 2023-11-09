@@ -186,4 +186,3 @@ cfg["confidence_threshold"] = 0.5
 cfg["matching_method"] = "sift"
 # The min and max valeus to scale the image between 0 and 1 with, only used for non-SIFT methods.
 cfg["max_value"] = 3000
-cfg["min_value"] = 200

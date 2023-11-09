@@ -127,7 +127,7 @@ def compute_correction(img1, img2, rpc1, rpc2, x, y, w, h,
                          f"tilesize or different ROI.")
     m = sift.matches_on_rpc_roi(img1, img2, rpc1, rpc2, x, y, w, h,
                                 method, sift_thresh, epipolar_threshold,
-                                matching_method, min_value, max_value, confidence_threshold)
+                                matching_method, max_value, confidence_threshold)
 
     if m is not None:
         A = local_translation(rpc1, rpc2, x, y, w, h, m)
