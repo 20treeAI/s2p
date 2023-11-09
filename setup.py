@@ -44,7 +44,7 @@ except ImportError:
 
 requirements = ['numpy==1.22.2',
                 'scipy',
-                'rasterio[s3] @ https://github.com/rasterio/rasterio/archive/refs/tags/1.3.6.tar.gz',
+                'rasterio[s3]==1.3.8',
                 'utm',
                 'pyproj>=3.0.0',
                 'beautifulsoup4[lxml]',
@@ -52,7 +52,7 @@ requirements = ['numpy==1.22.2',
                 'plyflatten>=0.2.0',
                 'ransac',
                 'rpcm @ git+https://github.com/20treeAI/rpcm.git@v1.4.9',
-                'srtm4 @ https://github.com/20treeAI/srtm4/archive/refs/tags/1.2.4.tar.gz',
+                'srtm4',
                 'requests',
                 'opencv-python',
                 'geopandas',
@@ -63,7 +63,7 @@ extras_require = {
 }
 
 setup(name="s2p",
-      version="1.5.2",
+      version="1.6.2",
       description="Satellite Stereo Pipeline.",
       long_description=readme(),
       long_description_content_type='text/markdown',

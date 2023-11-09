@@ -273,10 +273,10 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
             contains one pair of points, ordered as x1 y1 x2 y2.
             The coordinate system is that of the full images.
     """
-    x2, y2, w2, h2 = rpc_utils.corresponding_roi(rpc1, rpc2, x, y, w, h)
+    x2, y2, w2, h2 = rpc_utils.corresponding_roi(rpc1, rpc2, x, y, w, h, cfg)
 
     # estimate an approximate affine fundamental matrix from the rpcs
-    rpc_matches = rpc_utils.matches_from_rpc(rpc1, rpc2, x, y, w, h, 5)
+    rpc_matches = rpc_utils.matches_from_rpc(rpc1, rpc2, x, y, w, h, 5, cfg)
     F = estimation.affine_fundamental_matrix(rpc_matches)
 
     if matching_method == "loftr":

@@ -5,6 +5,7 @@ import pytest
 from rpcm import rpc_from_geotiff
 
 import s2p
+from s2p.config import cfg
 from tests_utils import data_path
 
 
@@ -55,6 +56,7 @@ def test_rectify_pair_with_matches(tmp_path, matches, images):
         h=200,
         out1=str(tmp_path / 'out1.tiff'),
         out2=str(tmp_path / 'out2.tiff'),
+        cfg=cfg,
         sift_matches=matches,
         method='sift',
     )

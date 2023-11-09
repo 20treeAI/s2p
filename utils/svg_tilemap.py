@@ -90,7 +90,7 @@ def main(user_cfg):
 
 
     # cleanup
-    common.garbage_cleanup()
+    common.garbage_cleanup(cfg['clean_temp'])
 
 
 if __name__ == '__main__':

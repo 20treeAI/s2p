@@ -5,9 +5,9 @@
 import os
 import sys
 import glob
+import rasterio
 import numpy as np
 from plyflatten import plyflatten_from_plyfiles_list
-import pytest
 
 import s2p
 from s2p import common
@@ -56,16 +56,14 @@ def compare_dsm(computed, expected, absmean_tol, percentile_tol):
 
 
 def end2end(config_file, ref_dsm, absmean_tol=0.025, percentile_tol=1.):
-
-    # TODO: this is ugly, and will be fixed once we'll have implemented a better
-    # way to control the config parameters
-    if 'out_crs' in s2p.cfg: del s2p.cfg['out_crs']
-
     test_cfg = s2p.read_config_file(config_file)
     s2p.main(test_cfg)
 
     outdir = test_cfg['out_dir']
 
+    out_dsm = os.path.join(outdir, 'dsm.tif')
+    assert os.path.exists(out_dsm)
+    assert rasterio.open(out_dsm).crs == rasterio.open(ref_dsm).crs
     computed = common.rio_read_as_array_with_nans(os.path.join(outdir, 'dsm.tif'))
     expected = common.rio_read_as_array_with_nans(ref_dsm)
 
