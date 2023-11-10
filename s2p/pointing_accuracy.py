@@ -100,7 +100,7 @@ def local_translation(r1, r2, x, y, w, h, m, cfg):
 
 def compute_correction(img1, img2, rpc1, rpc2, x, y, w, h,
                        method, sift_thresh, epipolar_threshold,
-                       matching_method, min_value, max_value, confidence_threshold, cfg):
+                       matching_method, max_value, confidence_threshold, cfg):
     """
     Computes pointing correction matrix for specific ROI
 
