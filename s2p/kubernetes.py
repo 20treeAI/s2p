@@ -204,7 +204,7 @@ def stereo_matching_k8s(tile, i, cfg, k8s_params):
         8 * regularity_multiplier
     )  # penalizes disparity changes of 1 between neighbor pixels
     P2 = 32 * regularity_multiplier  # penalizes disparity changes of more than 1
-    conf = "{}_confidence.tif".format(os.path.splitext(disp)[0])
+    conf = "{}_confidence.tif".format(os.path.splitext(disp_gfs)[0])
     args = [
         "-r",
         str(disp_min),
