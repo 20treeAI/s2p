@@ -237,7 +237,9 @@ def postprocess_stereo_matching_k8s(tile, i, cfg):
     rect1 = os.path.join(out_dir, "rectified_ref.tif")
     rect2 = os.path.join(out_dir, "rectified_sec.tif")
     disp = os.path.join(out_dir, "rectified_disp.tif")
-    disp_gfs = os.path.join("/gfs", disp)
+    gfs_dir, _ = _get_gfs_dirs(out_dir)
+    disp_gfs = os.path.join(gfs_dir, "rectified_disp.tif")
+    
     shutil.copy(disp_gfs, disp)
     mask = os.path.join(out_dir, "rectified_mask.png")
 
