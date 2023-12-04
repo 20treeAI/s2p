@@ -58,7 +58,6 @@ def create_mgm_multi_k8s_job(args, in_paths, out_path, k8s_params, env={}):
     job = k8s_client.V1Job(
         api_version="batch/v1",
         kind="Job",
-        backoffLimit=k8s_params.get("backoff_limit", 3),
         metadata=k8s_client.V1ObjectMeta(
             generate_name=k8s_params.get("generate_name"), namespace=k8s_params.get("namespace")
         ),
