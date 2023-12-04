@@ -58,6 +58,7 @@ def create_mgm_multi_k8s_job(args, in_paths, out_path, k8s_params, env={}):
     job = k8s_client.V1Job(
         api_version="batch/v1",
         kind="Job",
+        backoffLimit=k8s_params.get("backoff_limit", 3),
         metadata=k8s_client.V1ObjectMeta(
             generate_name=k8s_params.get("generate_name"), namespace=k8s_params.get("namespace")
         ),
@@ -239,6 +240,8 @@ def postprocess_stereo_matching_k8s(tile, i, cfg):
     disp = os.path.join(out_dir, "rectified_disp.tif")
     gfs_dir, _ = _get_gfs_dirs(out_dir)
     disp_gfs = os.path.join(gfs_dir, "rectified_disp.tif")
+    if not os.path.exists(disp_gfs):
+        return False
     
     shutil.copy(disp_gfs, disp)
     mask = os.path.join(out_dir, "rectified_mask.png")
@@ -252,3 +255,5 @@ def postprocess_stereo_matching_k8s(tile, i, cfg):
             common.remove(rect1)
         common.remove(rect2)
         common.remove(os.path.join(out_dir, "disp_min_max.txt"))
+   
+    return True
