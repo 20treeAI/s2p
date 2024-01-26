@@ -254,7 +254,7 @@ def keypoints_match_from_nparray(k1, k2, method, sift_threshold,
 
 
 def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
-                       method, sift_thresh, epipolar_threshold, matching_method="sift",
+                       method, sift_thresh, epipolar_threshold, cfg, matching_method="sift",
                        max_value=3000, confidence_threshold=0.5):
     """
     Compute a list of SIFT matches between two images on a given roi.
