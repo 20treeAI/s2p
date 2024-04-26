@@ -129,7 +129,7 @@ def pointing_correction(tile, i, cfg):
     A, m = pointing_accuracy.compute_correction(
         img1, img2, rpc1, rpc2, x, y, w, h, method,
         cfg['sift_match_thresh'], cfg['max_pointing_error'], cfg['matching_method'],
-        cfg['min_value'], cfg['max_value'], cfg['confidence_threshold'], cfg
+        cfg['max_value'], cfg['confidence_threshold'], cfg
     )
 
     if A is not None:  # A is the correction matrix
