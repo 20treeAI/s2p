@@ -347,7 +347,6 @@ def is_this_tile_useful(x, y, w, h, images, images_sizes, border_margin, cfg):
     mask = masking.image_tile_mask(x, y, w, h, roi_msk, cld_msk, wat_msk,
                                    images_sizes[0], border_margin=border_margin, temporary_dir=cfg['temporary_dir'])
     if not mask.any():
-
         return False, None
     return True, mask
 
