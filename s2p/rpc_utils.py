@@ -7,8 +7,9 @@ import warnings
 import rasterio
 import numpy as np
 
+from pyproj.crs import CRS
 import rpcm
-import srtm4
+import srtm4  
 
 from s2p import geographiclib
 from s2p import common
@@ -102,11 +103,20 @@ def min_max_heights_from_bbx(im, lon_m, lon_M, lat_m, lat_M, rpc, exogenous_dem_
     # open image
     dataset = rasterio.open(im, 'r')
 
+    proj_crs = CRS.from_user_input(dataset.crs)
+    if proj_crs.is_compound:
+        assert len(proj_crs.sub_crs_list) == 2, f"CRS too complex to parse {proj_crs.sub_crs_list}"
+        assert len([x for x in proj_crs.sub_crs_list if x.is_vertical]) == 1, f"Found more than 1 vertical CRS {proj_crs.sub_crs_list}"
+        horizontal_crs = [x for x in proj_crs.sub_crs_list if not x.is_vertical][0]
+        vertical_datum = [x for x in proj_crs.sub_crs_list if x.is_vertical][0]
+        crs_epsg = f"epsg:{horizontal_crs}+{vertical_datum}"
+    else:
+        crs_epsg = proj_crs.to_epsg()
     # convert lon/lat to im projection
     x_im_proj, y_im_proj = geographiclib.pyproj_transform([lon_m, lon_M],
                                                           [lat_m, lat_M],
                                                           4326,
-                                                          dataset.crs.to_epsg())
+                                                          crs_epsg)
 
     # convert im projection to pixel
     pts = []
