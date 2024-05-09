@@ -10,6 +10,7 @@ import copy
 import rasterio
 import numpy as np
 import rpcm
+from multiprocessing import cpu_count
 
 from s2p import common
 from s2p import geographiclib
@@ -380,9 +381,11 @@ def tiles_full_info(cfg, tw, th, tiles_txt, create_masks=False):
                 images_sizes.append(f.shape)
 
         # compute all masks in parallel as numpy arrays
+        n_workers = cfg["max_processes"] if cfg["max_processes"] is not None else cpu_count()
+        # compute all masks in parallel as numpy arrays
         tiles_usefulnesses = parallel.launch_calls(is_this_tile_useful,
                                                    tiles_coords,
-                                                   cfg['max_processes'],
+                                                   min(n_workers, cpu_count()//2),  # internal subprocess calls!,
                                                    cfg['images'],
                                                    images_sizes,
                                                    cfg['border_margin'],
