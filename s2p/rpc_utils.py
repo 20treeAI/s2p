@@ -7,7 +7,7 @@ import warnings
 import rasterio
 import numpy as np
 
-from pyproj.crs import CRS
+from pyproj import CRS
 import rpcm
 import srtm4
 
