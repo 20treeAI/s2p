@@ -9,7 +9,7 @@ import numpy as np
 
 from pyproj.crs import CRS
 import rpcm
-import srtm4  
+import srtm4
 
 from s2p import geographiclib
 from s2p import common
