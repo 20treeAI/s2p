@@ -109,7 +109,7 @@ def min_max_heights_from_bbx(im, lon_m, lon_M, lat_m, lat_M, rpc, exogenous_dem_
         assert len([x for x in proj_crs.sub_crs_list if x.is_vertical]) == 1, f"Found more than 1 vertical CRS {proj_crs.sub_crs_list}"
         horizontal_crs = [x for x in proj_crs.sub_crs_list if not x.is_vertical][0]
         vertical_datum = [x for x in proj_crs.sub_crs_list if x.is_vertical][0]
-        crs_epsg = f"epsg:{horizontal_crs}+{vertical_datum}"
+        crs_epsg = f"epsg:{horizontal_crs.to_epsg()}+{vertical_datum.to_epsg()}"
     else:
         crs_epsg = proj_crs.to_epsg()
     # convert lon/lat to im projection
