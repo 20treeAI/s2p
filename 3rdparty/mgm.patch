@@ -1,0 +1,15 @@
+diff --git a/3rdparty/mgm/iio/iio.c b/3rdparty/mgm/iio/iio.c
+index 4a678db..33de681 100644
+--- a/3rdparty/mgm/iio/iio.c
++++ b/3rdparty/mgm/iio/iio.c
+@@ -489,7 +489,9 @@ int iio_type_id(size_t sample_size, bool ieeefp_sample, bool signed_sample)
+ 		switch(sample_size) {
+ 		case sizeof(float):       return IIO_TYPE_FLOAT;
+ 		case sizeof(double):      return IIO_TYPE_DOUBLE;
+-		case sizeof(long double): return IIO_TYPE_LONGDOUBLE;
++		#ifdef I_CAN_HAS_LONGDOUBLE
++		    case sizeof(long double): return IIO_TYPE_LONGDOUBLE;
++		#endif//I_CAN_HAS_LONGDOUBLE
+ 		case sizeof(float)/2:     return IIO_TYPE_HALF;
+ 		default: fail("bad float size %zu", sample_size);
+ 		}
