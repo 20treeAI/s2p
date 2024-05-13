@@ -1,0 +1,57 @@
+diff --git a/3rdparty/homography/LibHomography/Splines.h b/3rdparty/homography/LibHomography/Splines.h
+index 56a36f1..46a123d 100644
+--- a/3rdparty/homography/LibHomography/Splines.h
++++ b/3rdparty/homography/LibHomography/Splines.h
+@@ -5,8 +5,7 @@
+ //! Global includes
+ #include <cstdlib>
+ #include <cmath>
+-#include <xmmintrin.h>
+-#include <x86intrin.h>
++#include "../../sse2neon/sse2neon.h"
+ 
+ 
+ //! Local includes
+diff --git a/3rdparty/homography/LibImages/LibImages.cpp b/3rdparty/homography/LibImages/LibImages.cpp
+index 7c1f6f5..fd75fb4 100644
+--- a/3rdparty/homography/LibImages/LibImages.cpp
++++ b/3rdparty/homography/LibImages/LibImages.cpp
+@@ -14,8 +14,7 @@
+ #ifdef _OPENMP
+ #include <omp.h>
+ #endif
+-#include <xmmintrin.h>
+-#include <x86intrin.h>
++#include "../../sse2neon/sse2neon.h"
+ #include <cmath>
+ #include <algorithm>
+ #include <cstring>
+diff --git a/3rdparty/homography/LibImages/LibImages.h b/3rdparty/homography/LibImages/LibImages.h
+index 51233a3..8ae589d 100644
+--- a/3rdparty/homography/LibImages/LibImages.h
++++ b/3rdparty/homography/LibImages/LibImages.h
+@@ -5,8 +5,7 @@
+ #include <stdlib.h>
+ #include <string>
+ #include <vector>
+-#include <xmmintrin.h>
+-#include <x86intrin.h>
++#include "../../sse2neon/sse2neon.h"
+ 
+ //! Local includes
+ 
+diff --git a/3rdparty/homography/Utilities/Utilities.h b/3rdparty/homography/Utilities/Utilities.h
+index cc80a22..ee45bf9 100644
+--- a/3rdparty/homography/Utilities/Utilities.h
++++ b/3rdparty/homography/Utilities/Utilities.h
+@@ -8,8 +8,8 @@
+ #include <sstream>
+ #include <iostream>
+ #include <iomanip>
+-#include <xmmintrin.h>
+-#include <x86intrin.h>
++#include "../../sse2neon/sse2neon.h"
++
+ #include <vector>
+ 
+ 

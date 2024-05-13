@@ -1,15 +1,34 @@
+UNAME := $(shell uname)
+
 # the following two options are used to control all C and C++ compilations
 CFLAGS   ?= -march=native -O3
 CXXFLAGS ?= -march=native -O3
+
+ifeq ($(UNAME), Darwin)
+    # on Mac OS, use recommended flag for sse2neon
+	CFLAGS   ?= -march=armv8-a+fp+simd+crypto+crc -O3
+	CXXFLAGS ?= -march=armv8-a+fp+simd+crypto+crc -O3
+endif
+
 export CFLAGS
 export CXXFLAGS
+
+ifeq ($(UNAME), Darwin)
+    # on mac, also link to homebrew
+	export C_INCLUDE_PATH := ${C_INCLUDE_PATH}:/opt/homebrew/include
+	export CPLUS_INCLUDE_PATH := ${CPLUS_INCLUDE_PATH}:/opt/homebrew/include
+	export LIBRARY_PATH := ${LIBRARY_PATH}:/opt/homebrew/lib
+	export LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:/opt/homebrew/lib
+    # apply patches, ignore if they fail (already patched)
+	patch_osx = git apply 3rdparty/*.patch || true
+endif
 
 # these options are only used for the programs directly inside "./c/"
 IIOLIBS     = -lz -ltiff -lpng -ljpeg -lm
 
 
 # default rule builds only the programs necessary for the test
-default: homography sift mgm_multi tvl1 lsd executables libraries
+default: patch_osx homography sift mgm_multi tvl1 lsd executables libraries
 
 # the "all" rule builds three further correlators
 all: default msmw3 sgbm
@@ -21,6 +40,9 @@ test: default
 #
 # four standard "modules": homography, sift, mgm, and mgm_multi
 #
+
+patch_osx:
+	$(patch_osx)
 
 homography:
 	$(MAKE) -j -C 3rdparty/homography
