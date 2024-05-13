@@ -35,3 +35,6 @@
 	path = 3rdparty/msmw3
 	url = https://github.com/cmla/msmw3
 	ignore = untracked
+[submodule "3rdparty/sse2neon"]
+	path = 3rdparty/sse2neon
+	url = https://github.com/DLTcollab/sse2neon
