@@ -124,7 +124,8 @@ def pointing_correction(tile, i, cfg):
     rpc2 = cfg['images'][i]['rpcm']
 
     # correct pointing error
-    print('correcting pointing on tile {} {} pair {}...'.format(x, y, i))
+    if cfg["debug"]:
+        print('correcting pointing on tile {} {} pair {}...'.format(x, y, i))
     method = 'relative' if cfg['relative_sift_match_thresh'] is True else 'absolute'
     A, m = pointing_accuracy.compute_correction(
         img1, img2, rpc1, rpc2, x, y, w, h, method,
@@ -178,8 +179,8 @@ def rectification_pair(tile, i, cfg):
     rpc2 = cfg['images'][i]['rpcm']
     pointing = os.path.join(cfg['out_dir'],
                             'global_pointing_pair_{}.txt'.format(i))
-
-    print('rectifying tile {} {} pair {}...'.format(x, y, i))
+    if cfg["debug"]:
+        print('rectifying tile {} {} pair {}...'.format(x, y, i))
     try:
         A = np.loadtxt(os.path.join(out_dir, 'pointing.txt'))
     except IOError:
@@ -240,8 +241,8 @@ def stereo_matching(tile, i, cfg):
     """
     out_dir = os.path.join(tile['dir'], 'pair_{}'.format(i))
     x, y = tile['coordinates'][:2]
-
-    print('estimating disparity on tile {} {} pair {}...'.format(x, y, i))
+    if cfg["debug"]:
+        print('estimating disparity on tile {} {} pair {}...'.format(x, y, i))
     rect1 = os.path.join(out_dir, 'rectified_ref.tif')
     rect2 = os.path.join(out_dir, 'rectified_sec.tif')
     disp = os.path.join(out_dir, 'rectified_disp.tif')
@@ -273,8 +274,8 @@ def disparity_to_height(tile, i, cfg):
     """
     out_dir = os.path.join(tile['dir'], 'pair_{}'.format(i))
     x, y, w, h = tile['coordinates']
-
-    print('triangulating tile {} {} pair {}...'.format(x, y, i))
+    if cfg["debug"]:
+        print('triangulating tile {} {} pair {}...'.format(x, y, i))
     rpc1 = cfg['images'][0]['rpcm']
     rpc2 = cfg['images'][i]['rpcm']
     H_ref = np.loadtxt(os.path.join(out_dir, 'H_ref.txt'))
@@ -321,8 +322,8 @@ def disparity_to_ply(tile, cfg):
     x, y, w, h = tile['coordinates']
     rpc1 = cfg['images'][0]['rpcm']
     rpc2 = cfg['images'][1]['rpcm']
-
-    print('triangulating tile {} {}...'.format(x, y))
+    if cfg["debug"]:
+        print('triangulating tile {} {}...'.format(x, y))
     H_ref = os.path.join(out_dir, 'pair_1', 'H_ref.txt')
     H_sec = os.path.join(out_dir, 'pair_1', 'H_sec.txt')
     pointing = os.path.join(cfg['out_dir'], 'global_pointing_pair_1.txt')
