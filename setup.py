@@ -48,16 +48,16 @@ except ImportError:
 
 
 requirements = [
-    "numpy==1.22.2",
+    "numpy==1.26.4",
     "scipy",
-    "rasterio[s3]==1.3.8",
+    "rasterio[s3]==1.3.10",
     "utm",
     "pyproj>=3.0.0",
     "beautifulsoup4[lxml]",
     "plyfile",
     "plyflatten>=0.2.0",
     "ransac",
-    "rpcm @ git+https://github.com/20treeAI/rpcm.git@v1.4.9",
+    "rpcm @ git+https://github.com/20treeAI/rpcm.git@v1.4.10",
     "srtm4",
     "requests",
     "opencv-python",
