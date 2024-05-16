@@ -57,7 +57,7 @@ requirements = [
     "plyfile",
     "plyflatten>=0.2.0",
     "ransac",
-    "rpcm @ git+https://github.com/20treeAI/rpcm.git@chore/rebased_on_upstream",
+    "rpcm @ git+https://github.com/20treeAI/rpcm.git@chore/rebased",
     "srtm4",
     "requests",
     "opencv-python",
