@@ -1,8 +1,8 @@
 import subprocess
 from codecs import open
 
-from setuptools import find_packages, setup
-from setuptools.command import build_py, develop
+from setuptools import setup
+from setuptools.command import develop, build_py
 
 
 def readme():
