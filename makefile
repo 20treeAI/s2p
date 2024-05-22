@@ -20,7 +20,7 @@ ifeq ($(UNAME), Darwin)
 	export LIBRARY_PATH := ${LIBRARY_PATH}:/opt/homebrew/lib
 	export LD_LIBRARY_PATH := ${LD_LIBRARY_PATH}:/opt/homebrew/lib
     # apply patches, ignore if they fail (already patched)
-	patch_osx = git apply 3rdparty/*.patch || true
+	patch_osx = git apply 3rdparty/submodule_patches/*.patch || true
 endif
 
 # these options are only used for the programs directly inside "./c/"

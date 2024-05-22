@@ -42,7 +42,7 @@ except ImportError:
     BdistWheel = None
 
 
-requirements = ['numpy==1.22.2',
+requirements = ['numpy>=1.22.2',
                 'scipy',
                 'rasterio[s3]==1.3.8',
                 'utm',
@@ -51,7 +51,7 @@ requirements = ['numpy==1.22.2',
                 'plyfile',
                 'plyflatten>=0.2.0',
                 'ransac',
-                'rpcm @ git+https://github.com/20treeAI/rpcm.git@v1.4.9',
+                'rpcm @ git+https://github.com/20treeAI/rpcm.git@v1.4.11',
                 'srtm4',
                 'requests',
                 'opencv-python',
@@ -63,7 +63,7 @@ extras_require = {
 }
 
 setup(name="s2p",
-      version="1.6.3",
+      version="1.6.4",
       description="Satellite Stereo Pipeline.",
       long_description=readme(),
       long_description_content_type='text/markdown',
