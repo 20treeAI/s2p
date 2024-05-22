@@ -111,7 +111,7 @@ def min_max_heights_from_bbx(im, lon_m, lon_M, lat_m, lat_M, rpc, exogenous_dem_
         vertical_datum = [x for x in proj_crs.sub_crs_list if x.is_vertical][0]
         crs_epsg = f"epsg:{horizontal_crs.to_epsg()}+{vertical_datum.to_epsg()}"
     else:
-        crs_epsg = proj_crs.to_epsg()
+        crs_epsg = f"epsg:{proj_crs.to_epsg()}"
     # convert lon/lat to im projection
     x_im_proj, y_im_proj = geographiclib.pyproj_transform([lon_m, lon_M],
                                                           [lat_m, lat_M],
