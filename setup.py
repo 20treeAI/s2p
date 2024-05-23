@@ -41,7 +41,7 @@ try:
 except ImportError:
     BdistWheel = None
 
-
+# rpcm not yet 1.4.11 because s2p-pipelines needs a 1 pixel offset fix in test data
 requirements = ['numpy>=1.22.2',
                 'scipy',
                 'rasterio[s3]==1.3.8',
@@ -51,7 +51,7 @@ requirements = ['numpy>=1.22.2',
                 'plyfile',
                 'plyflatten>=0.2.0',
                 'ransac',
-                'rpcm @ git+https://github.com/20treeAI/rpcm.git@v1.4.11',
+                'rpcm @ git+https://github.com/20treeAI/rpcm.git@v1.4.9',
                 'srtm4',
                 'requests',
                 'opencv-python',
