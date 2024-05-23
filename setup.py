@@ -41,7 +41,7 @@ try:
 except ImportError:
     BdistWheel = None
 
-
+# rpcm not yet 1.4.11 because s2p-pipelines needs a 1 pixel offset fix in test data
 requirements = ['numpy>=1.22.2',
                 'scipy',
                 'rasterio[s3]==1.3.8',
