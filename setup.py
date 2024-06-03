@@ -1,7 +1,8 @@
 import subprocess
 from codecs import open
-from setuptools import setup, find_packages
-from setuptools.command import develop, build_py
+
+from setuptools import find_packages, setup
+from setuptools.command import build_py, develop
 
 
 def readme():
@@ -62,7 +63,7 @@ extras_require = {
 }
 
 setup(name="s2p",
-      version="1.6.6",
+      version="1.6.7",
       description="Satellite Stereo Pipeline.",
       long_description=readme(),
       long_description_content_type='text/markdown',
