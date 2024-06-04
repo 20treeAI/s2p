@@ -262,7 +262,7 @@ def roi_process(rpc, ll_poly, use_srtm=False, exogenous_dem=None,
             if exogenous_dem_geoid_mode is True:
                 z = geographiclib.geoid_to_ellipsoid(lat, lon, z)
     elif use_srtm:
-        z = get_srtm_elevations(lon, lat, convert_ellipsoidal=True)
+        z = get_srtm_elevations([lon], [lat], convert_ellipsoidal=True)
     else:
         z = rpc.alt_offset
     img_pts = rpc.projection(ll_poly[:, 0], ll_poly[:, 1], z)
