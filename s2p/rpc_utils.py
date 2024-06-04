@@ -9,7 +9,7 @@ import numpy as np
 
 from pyproj import CRS
 import rpcm
-import srtm4
+from rpcm.dem import get_srtm_elevations
 
 from s2p import geographiclib
 from s2p import common
@@ -198,7 +198,7 @@ def altitude_range(rpc, x, y, w, h, cfg, margin_top=0, margin_bottom=0):
         points = [(lon, lat) for lon in np.arange(lon_m, lon_M, s)
                              for lat in np.arange(lat_m, lat_M, s)]
         lons, lats = np.asarray(points).T
-        alts = srtm4.srtm4(lons, lats)  # TODO use srtm4 nn interpolation option
+        alts =  get_srtm_elevations(lons, lats, convert_ellipsoidal=True)
         h_m = min(alts) + margin_bottom
         h_M = max(alts) + margin_top
     else:
@@ -262,7 +262,7 @@ def roi_process(rpc, ll_poly, use_srtm=False, exogenous_dem=None,
             if exogenous_dem_geoid_mode is True:
                 z = geographiclib.geoid_to_ellipsoid(lat, lon, z)
     elif use_srtm:
-        z = srtm4.srtm4(lon, lat)
+        z = get_srtm_elevations([lon], [lat], convert_ellipsoidal=True)
     else:
         z = rpc.alt_offset
     img_pts = rpc.projection(ll_poly[:, 0], ll_poly[:, 1], z)
