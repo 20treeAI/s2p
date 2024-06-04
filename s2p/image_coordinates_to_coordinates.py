@@ -8,7 +8,7 @@ import shapely
 from shapely.geometry import Point
 import geopy
 import geopy.distance
-import srtm4
+from rpcm.dem import get_srtm_elevations
 
 from rpcm import RPCModel, rpc_from_rpc_file
 
@@ -37,7 +37,7 @@ def localize_row_col_geometry(
     corrected_lons, corrected_lats = [], []
     for (lon, lat), col_idx, row_idx in zip(coords, col_indices, row_indices):
         
-        new_altitude = srtm4.srtm4(lon, lat)
+        new_altitude = get_srtm_elevations([lon], [lat], convert_ellipsoidal=True)
         new_lon, new_lat = 0, 0
         max_iterations = 10
         ground_dist_tol = 50
@@ -51,7 +51,7 @@ def localize_row_col_geometry(
             new_lon, new_lat = rpc_model.localization(
                 col_idx, row_idx, new_altitude
             )
-            new_altitude = srtm4.srtm4(new_lon, new_lat)
+            new_altitude = get_srtm_elevations([new_lon], [new_lat], convert_ellipsoidal=True)
             ground_distance = geopy.distance.distance(
                 (old_lat, old_lon), (new_lat, new_lon)
             ).m
