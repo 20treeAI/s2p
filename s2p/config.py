@@ -116,7 +116,7 @@ cfg['fusion_thresh'] = 3
 
 cfg['rpc_alt_range_scale_factor'] = 1
 
-# method to compute the disparity range: "sift", "exogenous", "wider_sift_exogenous", "fixed_pixel_range", "fixed_altitude_range"
+# method to compute the disparity range: "sift", "exogenous", "wider_sift_exogenous", "fixed_pixel_range", "fixed_altitude_range", "sift_else_exogenous"
 cfg['disp_range_method'] = "wider_sift_exogenous"
 cfg['disp_range_exogenous_low_margin'] = -10
 cfg['disp_range_exogenous_high_margin'] = +100
