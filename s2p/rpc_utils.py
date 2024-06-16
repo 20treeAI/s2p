@@ -423,7 +423,7 @@ def alt_to_disp(rpc1, rpc2, x, y, alt, H1, H2, A=None):
     return disp
 
 
-def exogenous_disp_range_estimation(rpc1, rpc2, x, y, w, h, H1, H2, cfg, A=None,
+def exogenous_or_sift_disp_range_estimation(rpc1, rpc2, x, y, w, h, H1, H2, cfg, A=None,
                                     margin_top=0, margin_bottom=0):
     """
     Args:

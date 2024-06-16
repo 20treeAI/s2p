@@ -182,8 +182,8 @@ def disparity_range(rpc1, rpc2, x, y, w, h, H1, H2, matches, cfg, A=None):
         disp: 2-uple containing the horizontal disparity range
     """
     # compute exogenous disparity range if needed
-    if cfg['disp_range_method'] in ['exogenous', 'wider_sift_exogenous']:
-        exogenous_disp = rpc_utils.exogenous_disp_range_estimation(rpc1, rpc2,
+    if 'exogenous' in cfg['disp_range_method']:
+        exogenous_disp = rpc_utils.exogenous_or_sift_disp_range_estimation(rpc1, rpc2,
                                                                    x, y, w, h,
                                                                    H1, H2, cfg, A,
                                                                    cfg['disp_range_exogenous_high_margin'],
@@ -192,7 +192,7 @@ def disparity_range(rpc1, rpc2, x, y, w, h, H1, H2, matches, cfg, A=None):
         print("exogenous disparity range:", exogenous_disp)
 
     # compute SIFT disparity range if needed
-    if cfg['disp_range_method'] in ['sift', 'wider_sift_exogenous']:
+    if 'sift' in cfg['disp_range_method']:
         if matches is not None and len(matches) >= 2:
             sift_disp = disparity_range_from_matches(matches, H1, H2, w, h, cfg['disp_range_extra_margin'])
         else:
@@ -219,6 +219,9 @@ def disparity_range(rpc1, rpc2, x, y, w, h, H1, H2, matches, cfg, A=None):
             disp = min(exogenous_disp[0], sift_disp[0]), max(exogenous_disp[1], sift_disp[1])
         else:
             disp = sift_disp or exogenous_disp
+
+    elif cfg['disp_range_method'] == 'sift_else_exogenous':
+        disp = sift_disp if sift_disp is not None else exogenous_disp
 
     elif cfg['disp_range_method'] == 'fixed_altitude_range':
         disp = alt_disp
