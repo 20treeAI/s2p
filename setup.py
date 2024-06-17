@@ -42,7 +42,7 @@ try:
 except ImportError:
     BdistWheel = None
 
-requirements = ['numpy>=1.22.2',
+requirements = ['numpy<2',
                 'scipy',
                 'rasterio[s3]>=1.3.8',
                 'utm',
