@@ -63,7 +63,7 @@ extras_require = {
 }
 
 setup(name="s2p",
-      version="1.6.8",
+      version="1.6.9",
       description="Satellite Stereo Pipeline.",
       long_description=readme(),
       long_description_content_type='text/markdown',
