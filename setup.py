@@ -44,7 +44,7 @@ except ImportError:
 
 requirements = ['numpy>=1.22.2',
                 'scipy',
-                'rasterio[s3]==1.3.8',
+                'rasterio[s3]>=1.3.8',
                 'utm',
                 'pyproj>=3.0.0',
                 'beautifulsoup4[lxml]',
