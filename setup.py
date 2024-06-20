@@ -1,12 +1,11 @@
 import subprocess
-from codecs import open
 
-from setuptools import find_packages, setup
+from setuptools import setup
 from setuptools.command import build_py, develop
 
 
 def readme():
-    with open("README.md", "r", "utf-8") as f:
+    with open("README.md", "r", encoding="utf-8") as f:
         return f.read()
 
 
