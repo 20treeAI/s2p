@@ -1,12 +1,11 @@
 import subprocess
-from codecs import open
 
-from setuptools import find_packages, setup
+from setuptools import setup
 from setuptools.command import build_py, develop
 
 
 def readme():
-    with open("README.md", "r", "utf-8") as f:
+    with open("README.md", "r", encoding="utf-8") as f:
         return f.read()
 
 
@@ -42,7 +41,7 @@ try:
 except ImportError:
     BdistWheel = None
 
-requirements = ['numpy<2',
+requirements = ['numpy',
                 'scipy',
                 'rasterio[s3]>=1.3.8',
                 'utm',
@@ -63,7 +62,7 @@ extras_require = {
 }
 
 setup(name="s2p",
-      version="1.6.9",
+      version="1.6.10",
       description="Satellite Stereo Pipeline.",
       long_description=readme(),
       long_description_content_type='text/markdown',
