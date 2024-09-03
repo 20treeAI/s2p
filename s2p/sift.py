@@ -23,9 +23,9 @@ except ImportError as e:
     print(e)
 
 try:
-    from matching.matcher import get_keypoints_superglue
+    from matching.matcher import get_keypoints_lightglue
 except ImportError as e:
-    print("SuperGlue matching library could not be imported.")
+    print("LightGlue matching library could not be imported.")
     print(e)
 
 
@@ -255,7 +255,7 @@ def keypoints_match_from_nparray(k1, k2, method, sift_threshold,
 
 def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
                        method, sift_thresh, epipolar_threshold, cfg, matching_method="sift",
-                       min_value=200, max_value=3000, confidence_threshold=0.5):
+                       max_value=3000, confidence_threshold=0.5):
     """
     Compute a list of SIFT matches between two images on a given roi.
     The corresponding roi in the second image is determined using the rpc
@@ -280,7 +280,7 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
     F = estimation.affine_fundamental_matrix(rpc_matches)
 
     if matching_method == "loftr":
-        p1, p2 = get_keypoints_loftr(im1, im2, min_value, max_value, confidence_threshold, 
+        p1, p2 = get_keypoints_loftr(im1, im2, max_value, max_value, confidence_threshold, 
                                      x, x2, y, y2, w, w2, h, h2, rpc_match=True)
         if len(p1) < 10 or len(p2) < 10:
             print("WARNING: sift.matches_on_rpc_roi: found no matches.")
@@ -303,10 +303,10 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
             return None
         
         
-    elif matching_method == "superglue":
-        p1, p2 = get_keypoints_superglue(im1, im2, min_value, max_value, x, x2, y, y2, w, w2, h, h2, rpc_match=True)
+    elif matching_method == "lightglue":
+        p1, p2 = get_keypoints_lightglue(im1, im2, max_value, max_value, x, x2, y, y2, w, w2, h, h2, rpc_match=True)
         if len(p1) < 10 or len(p2) < 10:
-            print("WARNING: sift.matches_on_rpc_roi: found no matches.")
+            print("lightglue found no matches.")
             return None
         
         p1[:, 0] += x
@@ -334,45 +334,5 @@ def matches_on_rpc_roi(im1, im2, rpc1, rpc2, x, y, w, h,
         else:
             print("WARNING: sift.matches_on_rpc_roi: found no matches.")
             return None
-
-        
-    elif matching_method == "all":
-        p1, p2 = get_keypoints_loftr(im1, im2, min_value, max_value, confidence_threshold, 
-                                     x, x2, y, y2, w, w2, h, h2, rpc_match=True)
-        p1[:, 0] += x
-        p1[:, 1] += y
-        p2[:, 0] += x2
-        p2[:, 1] += y2
-        matches = np.hstack((p1, p2))
-        if len(matches) == 0 or matches.ndim != 2:
-            print("WARNING: sift.matches_on_rpc_roi: found no matches.")
-            matches = None
-        elif len(matches) > 10:
-            inliers = ransac.find_fundamental_matrix(matches, ntrials=1000,
-                                                 max_err=0.3)[0]
-            matches = matches[inliers]
-        
-        p1_sg, p2_sg = get_keypoints_superglue(im1, im2, min_value, max_value, x, x2, y, y2, w, w2, h, h2, rpc_match=True)
-        p1_sg[:, 0] += x
-        p1_sg[:, 1] += y
-        p1_sg[:, 0] += x2
-        p1_sg[:, 1] += y2
-        matches_sg = np.hstack((p1_sg, p2_sg))
-
-        thresh_dog = 0.0133
-        for _ in range(2):
-            p1_sift = image_keypoints(im1, x, y, w, h, thresh_dog=thresh_dog)
-            p2_sift = image_keypoints(im2, x2, y2, w2, h2, thresh_dog=thresh_dog)
-            matches_sift = keypoints_match(p1_sift, p2_sift, method, sift_thresh, F,
-                                    epipolar_threshold=epipolar_threshold,
-                                    model='fundamental')
-            if matches_sift is not None and matches_sift.ndim == 2 and matches_sift.shape[0] > 10:
-                break
-            thresh_dog /= 2.0
-        
-        matches = np.vstack((matches, matches_sg, matches_sift))
-        
-        if len(matches) < 10:
-            return None
-
+            
     return matches
